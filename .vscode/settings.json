@@ -1,0 +1,6 @@
+{
+    "explorer.sortOrder": "filesFirst",
+    "workbench.tree.indent": 16,
+    "workbench.editor.labelFormat": "short",
+    "explorer.compactFolders": false
+}
