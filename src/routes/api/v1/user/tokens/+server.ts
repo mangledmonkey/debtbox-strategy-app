@@ -3,12 +3,6 @@ import type { Option, Options, ProjectsTableData } from '$lib/types';
 import type { Address } from 'viem';
 import { truncateEthAddress, getDebtBoxData } from '$lib/utils';
 import { getProjectsTableData } from '$lib/helpers'
-import { db } from '$lib/server/db'
-import { walletsTable, type UserWallet } from '$lib/server/db/schema/wallets'
-import { eq } from 'drizzle-orm';
-import type { ProjectsTable } from '$lib/components';
-// import { drizzle } from 'drizzle-orm/better-sqlite3'
-
 
 export const POST: RequestHandler = async (requestEvent) => {
 	const { request } = requestEvent;
@@ -51,14 +45,17 @@ export const POST: RequestHandler = async (requestEvent) => {
 			for (let c = 0; c < wallet.value.length; c += 1) {
 				const walletCell = wallet.value[c];
 				const cellIndex = summaryTable.findIndex(t => t.id === walletCell.id);
-				console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
+				// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
 
 				if (cellIndex === -1) {
 					summaryTable.push(walletCell)
 				} else {
-					console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
+					// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
 					summaryTable[cellIndex].inWallet += walletCell.inWallet 
 					summaryTable[cellIndex].walletValue += walletCell.walletValue 
+					summaryTable[cellIndex].stakedNfts += walletCell.stakedNfts 
+					summaryTable[cellIndex].unstakedNfts += walletCell.unstakedNfts 
+					summaryTable[cellIndex].totalNfts += walletCell.totalNfts 
 					summaryTable[cellIndex].rewards += walletCell.rewards 
 					summaryTable[cellIndex].rewardsValue += walletCell.rewardsValue 
 				}

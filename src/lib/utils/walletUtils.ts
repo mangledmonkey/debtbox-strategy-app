@@ -1,5 +1,5 @@
 import type { Address } from "viem";
-import type { Options, ProjectsTableData } from "$lib/types";
+import type { Options } from "$lib/types";
 
 export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...")

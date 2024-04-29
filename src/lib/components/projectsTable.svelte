@@ -75,19 +75,19 @@
                     ${rowData.price}
                 </td>
                 <td class="project-row--in-wallet text-right">
-                    {rowData.inWallet}
+                    {rowData.inWallet.toLocaleString()}
                 </td>
                 <td class="project-row--wallet-value text-right">
-                    ${rowData.walletValue}
+                    ${rowData.walletValue.toLocaleString()}
                 </td>
                 <td class="project-row--rewards-rate text-right">
-                    {rowData.rewardsRate}
+                    {rowData.dailyWalletRewardsRate.toLocaleString()}
                 </td>
                 <td class="project-row--rewards text-right">
-                    {rowData.rewards}
+                    {rowData.rewards.toLocaleString()}
                 </td>
                 <td class="project-row--rewards-value text-right">
-                    ${rowData.rewardsValue}
+                    ${rowData.rewardsValue.toLocaleString()}
                 </td>
             </tr>
         {/each}
