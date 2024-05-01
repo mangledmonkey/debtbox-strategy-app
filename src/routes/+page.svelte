@@ -1,49 +1,55 @@
 <script lang="ts">
-    import type { DebtBoxProject, DebtBoxToken, Options, ProjectsTableData } from '$lib/types';
-    import { getContext } from 'svelte';
-    import { getWalletDataCtx } from '$lib/walletDataCtx'
-	import { browser } from '$app/environment';
+    import type { DebtBoxProject, DebtBoxToken, Options, TokenData } from '$lib/types';
+    import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts'
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
-	import type { Address } from 'viem';
 	import { Tab, Tabs, Card } from 'svelte-ux';
-	import { getUserWallets, getWalletData } from '$lib/utils/walletUtils';
 	import { ProjectsTable } from '$lib/components';
-	import type { Stores, StoresValues } from 'svelte/store';
 
 	// export let data;
-	// let userWallets: Address[] = [];
-    // let walletData: Array<ProjectsTableData[]>|void;
-    let value: ProjectsTableData[] = [];
-    const walletData = getWalletDataCtx()
+    let value: TokenData[] = [];
+    const walletData = getWalletDataCtx();
+    const walletTotals = getWalletTotalsCtx();
 
-	// // Get user's wallets if available
-    // async function getTableData(signerAddress: Address|string|null, chainId: number|null|undefined) {
-    //     console.log("🚀 ~ calling getTableData...")
-    //     const userWallets: Address[] = await getUserWallets(signerAddress);
-    //     console.log("🚀 ~ getTableData ~ userWallets:", userWallets)
-    //     walletData = await getWalletData(userWallets, $chainId);
-    //     value = walletData[0].value;
-    // }
-
-	// let projects: DebtBoxProject[] | undefined = data.debtBoxData?.projects;
-	// let tokens: DebtBoxToken[] | undefined = data.debtBoxData?.tokens;
-
-	// $: async () => (walletData = await getTableData($signerAddress, $chainId));
-	// $: console.log("🚀 ~ walletData:", walletData)
 	$: console.log('🚀 ~ $signerAddress:', $signerAddress);
-	$: console.log('🚀 ~ value:', value);
+	// $: console.log('🚀 ~ value:', value);
     $: console.log('$walletData:', $walletData)
+    $: console.log('$walletTotals:', $walletTotals)
 	// $: console.log('🚀 ~ userWallets:', userWallets);
-    $: $walletData && value.length === 0 ? value = $walletData[0].value: '';
+    $: $walletData && value.length === 0 ? value = $walletData[0].value : '';
 </script>
-
-<p>Connected: {$connected ? 'Yes' : 'No'}</p>
-<p>Chain ID: {$chainId}</p>
-<p>Signer address: {$signerAddress}</p>
-
 {#if $loading}
 	<p>Loading data...</p>
 {:else if $connected && $signerAddress}
+    {#if $walletTotals}
+        <Card class="mt-5">
+            <div class="flex gap-2 p-4 justify-between">
+                <div class="flex flex-col text-center">
+                    <strong>Daily Rewards</strong>
+                    <span class="text-3xl">${$walletTotals.dailyReturns}</span>
+                </div>
+                <div class="flex flex-col text-center">
+                    <strong>Rewards Balance</strong>
+                    <span class="text-3xl">${$walletTotals.rewardsBalance}</span>
+                </div>
+                <div class="flex flex-col text-center">
+                    <strong>Wallet Balance</strong>
+                    <span class="text-3xl">${$walletTotals.walletBalance}</span>
+                </div>
+                <div class="flex flex-col text-center">
+                    <strong>Total Value</strong>
+                    <span class="text-3xl">${ $walletTotals.rewardsBalance + $walletTotals.walletBalance }</span>
+                </div>
+                <div class="flex flex-col text-center">
+                    <strong>Staked NFTs</strong>
+                    <span class="text-3xl">{$walletTotals.stakedNfts}</span>
+                </div>
+                <div class="flex flex-col text-center">
+                    <strong>Unstaked NFTs</strong>
+                    <span class="text-3xl">{$walletTotals.unstakedNfts}</span>
+                </div>
+            </div>
+        </Card>
+    {/if}
     {#if $walletData}
         <Tabs
             options={$walletData}
@@ -57,7 +63,7 @@
         >            
             <svelte:fragment slot="content" let:value>
                 <ProjectsTable
-                    tokenData={value}
+                    tokenData={value.tokens}
                 />
             </svelte:fragment>
         </Tabs>

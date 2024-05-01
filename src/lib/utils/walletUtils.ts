@@ -1,5 +1,6 @@
 import type { Address } from "viem";
-import type { Options } from "$lib/types";
+import type { Options, TokenData, WalletTotals } from "$lib/types";
+import { roundUnits } from "./utils";
 
 export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...")
@@ -55,4 +56,29 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
     }
 
     return walletData;
+}
+
+export function getWalletTotals(tokens: TokenData[]): WalletTotals  {
+    // console.log('🚀 ~ getWalletTotals ~ tableData:', tokens)
+    const walletTotals: WalletTotals = {
+        totalNfts: 0,
+        stakedNfts: 0,
+        unstakedNfts: 0,
+        dailyReturns: 0,
+        walletBalance: 0,
+        rewardsBalance: 0,
+    }
+  
+    for (let i = 0; i < tokens.length; i += 1) {
+        const token = tokens[i]
+        
+        walletTotals.totalNfts += token.totalNfts;
+        walletTotals.stakedNfts += token.stakedNfts;
+        walletTotals.unstakedNfts += token.unstakedNfts;
+        walletTotals.dailyReturns = roundUnits(walletTotals.dailyReturns + token.dailyWalletRewardsValue);
+        walletTotals.walletBalance = roundUnits(walletTotals.walletBalance + token.walletValue);
+        walletTotals.rewardsBalance = roundUnits(walletTotals.rewardsBalance + token.rewardsValue);
+    }
+
+    return walletTotals;
 }

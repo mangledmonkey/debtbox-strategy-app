@@ -1,1 +1,1 @@
-export { getProjectsTableData } from './projectsTableHelpers'
+export { getTokensData } from './projectsTableHelpers'

@@ -3,9 +3,9 @@
     import type { 
         DebtBoxProject, 
         DebtBoxToken, 
-        ProjectsTableData 
+        TokensData 
     } from '$lib/types';
-    import { getProjectsTableData } from '$lib/helpers'
+    import { getTokensData } from '$lib/helpers'
     import { Table, Card } from 'svelte-ux';
 
     // export let projects: DebtBoxProject[]|undefined;
@@ -13,12 +13,12 @@
     // export let signerAddress: Address|string|null;
     // export let chainId: number|null|undefined;
 
-    export let tokenData: ProjectsTableData[] | null;
+    export let tokenData: TokensData[] | null;
     // let projectsTableDataLoaded = false;
 
     // async function populateProjectsTable(projects: DebtBoxProject[], tokens: DebtBoxToken[], signerAddress: Address|string|null, chainId: number|null|undefined) {
     //     if (projects && tokens && signerAddress) {
-    //         projectsTableData = await getProjectsTableData(projects, tokens, signerAddress, chainId);
+    //         projectsTableData = await getTokensData(projects, tokens, signerAddress, chainId);
     //         projectsTableDataLoaded = true;
     //     }
     // }

@@ -1,5 +1,5 @@
-import type { DebtBoxProject, DebtBoxToken, ProjectsTableData } from '$lib/types';
-import { getTokenPrice, getTokenBalance, getRewardsData } from '$lib/utils';
+import type { DebtBoxProject, DebtBoxToken, TokenData, TokensData, WalletTotals } from '$lib/types';
+import { getTokenPrice, getTokenBalance, getRewardsData, roundUnits, getWalletTotals } from '$lib/utils';
 import { type Address, getAddress, formatUnits } from 'viem';
 
 /**
@@ -9,11 +9,13 @@ import { type Address, getAddress, formatUnits } from 'viem';
  * @param signerAddress 
  * @returns project data formatted for table display
  */
-export async function getProjectsTableData(projects: DebtBoxProject[], tokens: DebtBoxToken[], address: Address|string, chainId: number) {
-    const tableData: ProjectsTableData[] = [];
+export async function getTokensData(projects: DebtBoxProject[], tokens: DebtBoxToken[], address: Address|string, chainId: number): Promise<TokensData> {
+    // const multicallData: MulticallData[] = getMulticallData(projects, tokens, address, chainId)
 
-    for (let i = 0; i < projects.length; i += 1) {
-        const project = projects[i];
+    // Collect token values
+    async function getTokenData(project: DebtBoxProject, i: number): Promise<TokenData> {
+    // for (let i = 0; i < projects.length; i += 1) {
+        // const project = projects[i];
         const token: DebtBoxToken|undefined = tokens.find(token => token.id === project.relationships.token.data.id);
         const decimals: number = token?.attributes.decimals || 8;
         const rewardsData = await getRewardsData(project, address, chainId);
@@ -24,21 +26,24 @@ export async function getProjectsTableData(projects: DebtBoxProject[], tokens: D
         const walletValue: number = price && inWallet ? roundUnits(price * inWallet) : 0;
         const stakedNfts: number = 
         rewardsData?.stakedNfts ? Number(formatUnits(rewardsData?.stakedNfts, 0)) : 0;
-        const unstakedNfts: number = 0; // TODO
+        const unstakedNfts: number =  0; //getUnstakedNfts() || 0; // TODO
         const totalNfts: number = stakedNfts + unstakedNfts;
         const rewardsRate: number = 
             rewardsData?.rewardsPerSecond
             ? Number(formatUnits(rewardsData?.rewardsPerSecond, decimals))
             : 0;
         const dailyRewardsRate: number = Number((rewardsRate * (60 * 60 * 24)).toFixed(4));
+        const dailyRewardsValue: number = roundUnits(price * dailyRewardsRate);
         const dailyWalletRewardsRate: number = Number((stakedNfts * dailyRewardsRate).toFixed(4));
+        const dailyWalletRewardsValue: number = roundUnits(price * dailyWalletRewardsRate);
         const rewards = 
             rewardsData?.pendingRewards 
             ? Number(Number(formatUnits(rewardsData?.pendingRewards, decimals)).toFixed(0))
             : 0; // TODO
         const rewardsValue: number = price && rewards ? roundUnits(price * rewards) : 0;
+
         
-        const cell: ProjectsTableData = {
+        const values: TokenData = {
             id: i,
             address: token?.attributes.address,
             icon: project.attributes.uiConfig.logoUri,
@@ -51,23 +56,31 @@ export async function getProjectsTableData(projects: DebtBoxProject[], tokens: D
             totalNfts,
             rewardsRate,
             dailyRewardsRate,
+            dailyRewardsValue,
             dailyWalletRewardsRate,
+            dailyWalletRewardsValue,
             rewards,
             rewardsValue,
         }
-        // console.log("🚀 ~ prepareProjectsTableData ~ cell:", cell)
-        
-        tableData.push(cell)
+
+        // tokenValues.push(values)
+        return values;
     }
 
-    if (tableData)
+    const tokenData: Promise<TokenData>[] = projects.map((project, i) => {
+        return getTokenData(project, i);
+    })
 
+    const tokenValues = await Promise.all(tokenData)
 
-    // console.log("🚀 ~ prepareProjectsTableData ~ tableData:", tableData)
+    // Total the wallet values
+    const totals: WalletTotals = getWalletTotals(tokenValues);
+
+    // console.log("🚀 ~ prepareTokensData ~ cell:", cell)
+    const tokensData = {
+        tokens: tokenValues,
+        totals
+    }
     
-    return tableData;
-}
-
-function roundUnits(number: number) {
-    return Math.round((number + Number.EPSILON) * 100) / 100;
+    return tokensData;
 }

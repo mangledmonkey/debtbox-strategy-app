@@ -13,24 +13,34 @@
 	import { AppLayout, AppBar, NavItem, Button } from 'svelte-ux';
 	import LoaderCircle from '~icons/lucide/loader-circle';
 	import { page } from '$app/stores';
-	import { writable, type Writable } from 'svelte/store';
-	import { truncateEthAddress, getUserWallets, getWalletData } from '$lib/utils';
-    import { setWalletDataCtx, getWalletDataCtx } from '$lib/walletDataCtx';
+	import { truncateEthAddress, getUserWallets, getWalletData, getWalletTotals } from '$lib/utils';
+    import { 
+		setWalletDataCtx, 
+		getWalletDataCtx,
+		setWalletTotalsCtx,
+		getWalletTotalsCtx
+	 } from '$lib/contexts';
 
-    setWalletDataCtx(undefined)
+    setWalletDataCtx(undefined);
     const walletData = getWalletDataCtx();
+
+	setWalletTotalsCtx(undefined);
+	const walletTotals = getWalletTotalsCtx();
 
 	// Get user's wallets if available
 	async function getTableData(
 		signerAddress: Address | string | null,
 		chainId: number | null | undefined
 	) {
-		console.log('🚀 ~ calling getTableData...');
-		const userWallets: Address[] = await getUserWallets(signerAddress);
-		console.log('🚀 ~ getTableData ~ userWallets:', userWallets);
-
-		// Set the store
-		$walletData = await getWalletData(userWallets, $chainId);
+		if ($signerAddress) {
+			console.log('🚀 ~ calling getTableData...');
+			const userWallets: Address[] = await getUserWallets(signerAddress);
+			console.log('🚀 ~ getTableData ~ userWallets:', userWallets);
+			
+			// Set the store
+			$walletData = await getWalletData(userWallets, $chainId);
+			$walletTotals = $walletData[0].value.totals;
+		}
 	}
 
 	// export let data;
@@ -48,7 +58,7 @@
 		});
 		await erckit.init()
         .then(() => {
-			getTableData($signerAddress, $chainId);
+		// 	if ($signerAddress) getTableData($signerAddress, $chainId);
 		});
 	});
 
@@ -56,7 +66,8 @@
 	$: console.log('Chain ID:', $chainId);
 	$: console.log('Signer address:', $signerAddress);
 	$: console.log('Loading:', $loading);
-	$: console.log('$walletData:', $walletData);
+	$: $signerAddress, getTableData($signerAddress, $chainId)
+	// $: console.log('$walletData:', $walletData);
 </script>
 
 <AppLayout areas="'header header' 'aside main'" navWidth={100}>

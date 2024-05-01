@@ -1,19 +1,11 @@
-import type { AbiFactory } from "./abiFactory";
-import type { Contract } from "./contract";
-import type { DebtBoxProject } from "./debtBoxProject";
-import type { DebtBoxToken } from "./debtBoxToken";
-import type { Diamond, DiamondInfo, DiamondData } from './diamond';
-import type { FacetData } from "./facetData";
-import type { ProjectsTableData } from "./projectsTableData";
+export *  from "./abiFactory";
+export * from "./contract";
+export * from "./debtBoxProject";
+export * from "./debtBoxToken";
+export * from './defaultValues';
+export * from './diamond';
+export *  from "./facetData";
+export * from './mulitcallData';
+export *  from "./tokensData";
 export * from './svelteUx'
-export type { 
-    AbiFactory,
-    Contract,
-    DebtBoxProject,
-    DebtBoxToken, 
-    Diamond,
-    DiamondInfo,
-    DiamondData,
-    FacetData,
-    ProjectsTableData,
-}
+export * from './walletTotals'

@@ -1,8 +1,8 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import type { Option, Options, ProjectsTableData } from '$lib/types';
+import type { Option, Options, TokenData, WalletTotals } from '$lib/types';
 import type { Address } from 'viem';
-import { truncateEthAddress, getDebtBoxData } from '$lib/utils';
-import { getProjectsTableData } from '$lib/helpers'
+import { truncateEthAddress, getDebtBoxData, roundUnits } from '$lib/utils';
+import { getTokensData } from '$lib/helpers'
 
 export const POST: RequestHandler = async (requestEvent) => {
 	const { request } = requestEvent;
@@ -19,11 +19,13 @@ export const POST: RequestHandler = async (requestEvent) => {
 	
 	// Get the user's additional wallets
 	for(let i = 0; i < wallets.length; i += 1) {
+		const address: Address|string = wallets[i];
+		
 		try {
-			const address: Address|string = wallets[i];
-			const tokensData: ProjectsTableData[]|undefined = await getProjectsTableData(debtBoxData.projects, debtBoxData.tokens, address, chainId)
 			const truncatedAddress = truncateEthAddress(address)
-			console.log("🚀 ~ constPOST:RequestHandler= ~ truncatedAddress:", truncatedAddress)
+			
+			const tokensData = await getTokensData(debtBoxData.projects, debtBoxData.tokens, address, chainId);
+			
 			const tableData: Option = {
 				label: truncatedAddress,
 				value: tokensData,
@@ -37,13 +39,22 @@ export const POST: RequestHandler = async (requestEvent) => {
 
 	// Create and insert summary table
 	if (wallets.length > 1) {
-		const summaryTable: ProjectsTableData[] = [];
+		const summaryTable: TokenData[] = [];
+		const summaryTotals: WalletTotals = {
+			totalNfts: 0,
+			stakedNfts: 0,
+			unstakedNfts: 0,
+			dailyReturns: 0,
+			walletBalance: 0,
+			rewardsBalance: 0,
+		};
 		
 		for (let i = 0; i < walletData.length; i += 1) {
 			const wallet: Option = walletData[i];
+			const walletTotals: WalletTotals = wallet.value.totals; 
 
-			for (let c = 0; c < wallet.value.length; c += 1) {
-				const walletCell = wallet.value[c];
+			for (let c = 0; c < wallet.value.tokens.length; c += 1) {
+				const walletCell = wallet.value.tokens[c];
 				const cellIndex = summaryTable.findIndex(t => t.id === walletCell.id);
 				// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
 
@@ -51,20 +62,30 @@ export const POST: RequestHandler = async (requestEvent) => {
 					summaryTable.push(walletCell)
 				} else {
 					// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
-					summaryTable[cellIndex].inWallet += walletCell.inWallet 
-					summaryTable[cellIndex].walletValue += walletCell.walletValue 
-					summaryTable[cellIndex].stakedNfts += walletCell.stakedNfts 
-					summaryTable[cellIndex].unstakedNfts += walletCell.unstakedNfts 
-					summaryTable[cellIndex].totalNfts += walletCell.totalNfts 
-					summaryTable[cellIndex].rewards += walletCell.rewards 
-					summaryTable[cellIndex].rewardsValue += walletCell.rewardsValue 
+					summaryTable[cellIndex].inWallet += walletCell.inWallet; 
+					summaryTable[cellIndex].walletValue += walletCell.walletValue;
+					summaryTable[cellIndex].stakedNfts += walletCell.stakedNfts;
+					summaryTable[cellIndex].unstakedNfts += walletCell.unstakedNfts;
+					summaryTable[cellIndex].totalNfts += walletCell.totalNfts;
+					summaryTable[cellIndex].rewards += walletCell.rewards;
+					summaryTable[cellIndex].rewardsValue += walletCell.rewardsValue;
 				}
 			}
+
+			summaryTotals.totalNfts += walletTotals.totalNfts;
+			summaryTotals.stakedNfts += walletTotals.stakedNfts;
+			summaryTotals.unstakedNfts += walletTotals.unstakedNfts;
+			summaryTotals.dailyReturns = roundUnits(summaryTotals.dailyReturns + walletTotals.dailyReturns);
+			summaryTotals.walletBalance = roundUnits(summaryTotals.walletBalance + walletTotals.walletBalance);
+			summaryTotals.rewardsBalance = roundUnits(summaryTotals.rewardsBalance + walletTotals.rewardsBalance);
 		}
 		
 		const summaryWalletData: Option = {
 			label: 'Summary',
-			value: summaryTable,
+			value: {
+				tokens: summaryTable,
+				totals: summaryTotals,
+			},
 		}
 
 		walletData.splice(0, 0, summaryWalletData);

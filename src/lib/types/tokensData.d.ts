@@ -1,4 +1,6 @@
-export type ProjectsTableData = {
+import type { WalletTotals } from "."
+
+export type TokenData = {
     id: number,
     address: Address|string|null,
     icon: string,
@@ -11,7 +13,14 @@ export type ProjectsTableData = {
     totalNfts: number,
     rewardsRate: number,
     dailyRewardsRate: number,
+    dailyRewardsValue: number,
     dailyWalletRewardsRate: number,
+    dailyWalletRewardsValue: number,
     rewards: number,
     rewardsValue: number,
+}
+
+export type TokensData = {
+    tokens: TokenData[],
+    totals: WalletTotals
 }

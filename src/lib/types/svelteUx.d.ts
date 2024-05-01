@@ -1,5 +1,10 @@
+import type { TokenData, WalletTotals } from ".";
+
 export type Option = { 
     label: string; 
-    value: any
+    value: {
+        tokens: TokenData[],
+        totals: WalletTotals,
+    }
 }
 export type Options = Option[]
