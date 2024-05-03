@@ -1,35 +1,19 @@
 <script lang="ts">
+    import currency from 'currency.js';
     import type { Address, Chain } from 'viem';
     import type { 
         DebtBoxProject, 
         DebtBoxToken, 
-        TokensData 
+        TokenData 
     } from '$lib/types';
     import { getTokensData } from '$lib/helpers'
     import { Table, Card } from 'svelte-ux';
 
-    // export let projects: DebtBoxProject[]|undefined;
-    // export let tokens: DebtBoxToken[]|undefined;
-    // export let signerAddress: Address|string|null;
-    // export let chainId: number|null|undefined;
-
-    export let tokenData: TokensData[] | null;
-    // let projectsTableDataLoaded = false;
-
-    // async function populateProjectsTable(projects: DebtBoxProject[], tokens: DebtBoxToken[], signerAddress: Address|string|null, chainId: number|null|undefined) {
-    //     if (projects && tokens && signerAddress) {
-    //         projectsTableData = await getTokensData(projects, tokens, signerAddress, chainId);
-    //         projectsTableDataLoaded = true;
-    //     }
-    // }
-
-    // $: projects && tokens ? populateProjectsTable(projects, tokens, signerAddress, chainId) : '';
-    // $: tokenData
-    // $: projectsTableDataLoaded
+    export let tokenData: TokenData[];
 </script>
 
 <Table
-    class="table-auto border-spacing-5"
+    class="mt-5 table-auto border-spacing-5x"
     data={tokenData}
     columns={[
         {
@@ -49,7 +33,7 @@
             align: 'right'
         },
         {
-            name: 'Rewards Rate',
+            name: 'Daily Rewards Rate',
             align: 'right'
         },
         {
@@ -72,22 +56,22 @@
                     </span>
                 </td>
                 <td class="project-row--price text-right">
-                    ${rowData.price}
+                    ${currency(rowData.price, {precision: 8})}
                 </td>
                 <td class="project-row--in-wallet text-right">
-                    {rowData.inWallet.toLocaleString()}
+                    {rowData.inWallet}
                 </td>
                 <td class="project-row--wallet-value text-right">
-                    ${rowData.walletValue.toLocaleString()}
+                    ${currency(rowData.walletValue)}
                 </td>
                 <td class="project-row--rewards-rate text-right">
-                    {rowData.dailyWalletRewardsRate.toLocaleString()}
+                    {rowData.dailyWalletRewardsRate}
                 </td>
                 <td class="project-row--rewards text-right">
-                    {rowData.rewards.toLocaleString()}
+                    {rowData.rewards}
                 </td>
                 <td class="project-row--rewards-value text-right">
-                    ${rowData.rewardsValue.toLocaleString()}
+                    ${currency(rowData.rewardsValue)}
                 </td>
             </tr>
         {/each}

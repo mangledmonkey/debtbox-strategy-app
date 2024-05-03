@@ -13,19 +13,28 @@
 	import { AppLayout, AppBar, NavItem, Button } from 'svelte-ux';
 	import LoaderCircle from '~icons/lucide/loader-circle';
 	import { page } from '$app/stores';
-	import { truncateEthAddress, getUserWallets, getWalletData, getWalletTotals } from '$lib/utils';
+	import { 
+		truncateEthAddress,
+		getUserWallets,
+		getWalletData
+	} from '$lib/utils';
     import { 
 		setWalletDataCtx, 
 		getWalletDataCtx,
 		setWalletTotalsCtx,
-		getWalletTotalsCtx
-	 } from '$lib/contexts';
+		getWalletTotalsCtx,
+		setCompoundValuesCtx,
+		getCompoundValuesCtx,
+	} from '$lib/contexts';
+	import { defaultValues } from '$lib/data/defaultCompoundValues';
 
     setWalletDataCtx(undefined);
     const walletData = getWalletDataCtx();
 
 	setWalletTotalsCtx(undefined);
 	const walletTotals = getWalletTotalsCtx();
+
+	setCompoundValuesCtx(defaultValues);
 
 	// Get user's wallets if available
 	async function getTableData(
@@ -94,7 +103,7 @@
 		</div>
 	</AppBar>
 
-	<main class="p-10">
+	<main class="p-5">
 		<slot />
 	</main>
 </AppLayout>
