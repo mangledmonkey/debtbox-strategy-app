@@ -10,17 +10,25 @@ export type TokenData = {
     walletValue: number,
     stakedNfts: number,
     unstakedNfts: number,
+    stakedMicros: number,
+    unstakedMicros: number,
     totalNfts: number,
     rewardsRate: number,
     dailyRewardsRate: number,
     dailyRewardsValue: number,
     dailyWalletRewardsRate: number,
     dailyWalletRewardsValue: number,
+    weeklyWalletRewardsRate: number,
+    weeklyWalletRewardsValue: number,
+    monthlyWalletRewardsRate: number,
+    monthlyWalletRewardsValue: number,
+    yearlyWalletRewardsRate: number,
+    yearlyWalletRewardsValue: number,
     rewards: number,
     rewardsValue: number,
 }
 
 export type TokensData = {
-    tokens: TokenData[],
+    tokens: (void|TokenData)[]
     totals: WalletTotals
 }

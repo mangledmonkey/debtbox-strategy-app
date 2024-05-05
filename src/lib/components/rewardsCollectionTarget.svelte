@@ -45,10 +45,9 @@
     let statusColor: string;
     
     $: collectionTarget = targetData.dailyReturns * 30;
-    $: countdown = Number(currency((collectionTarget - targetData.rewardsBalance) / targetData.dailyReturns, { precision: 1 }) || 0);
+    $: countdown = Number(currency((collectionTarget - targetData.rewardsBalance) / targetData.dailyReturns, { precision: 1 })) || 0;
     $: statusColor = getStatusColor(countdown);
     $: targetData, updateCompoundBreakdown(targetData);
-    $: console.log('statusColor:', statusColor)
 </script>
 
 <div class="flex justify-around p-4 flex-row">
@@ -63,10 +62,10 @@
                     </span>
                     <!-- <Field label="Override" labelPlacement="inset"></Field> -->
                 </div>
-                <div class="flex flex-col text-center gap-2">
-                    <strong>Collection Target</strong>
+                <div class="flex flex-col text-center gap-">
+                    <strong class="mb-3">Collection Target</strong>
                     <Badge value={countdown} dot class={`bg-${statusColor}`}>
-                        <span class="text-4xl">${currency(collectionTarget)}</span>
+                        <span class="text-3xl">${currency(collectionTarget)}</span>
                     </Badge>
                         <span class={`text-${statusColor}`}>{countdown} days</span>
                 </div>
@@ -75,7 +74,7 @@
     </div>
 
     <div>
-        <h3 class="text-3xl text-center mb-2">Compound Breakdown</h3>
+        <h3 class="text-4xl text-center mb-2">Compound Breakdown</h3>
         <Card class="flex gap-4 p-4 justify-around align-middle flex-row">
             <div class="flex flex-col gap-5 justify-center">
                 <div class="flex flex-col text-center gap-2">
@@ -91,7 +90,7 @@
                     </span>
                 </div>
             </div>
-            <div class="flex flex-col gap-2 border-secondary-content">
+            <div class="flex flex-col border-secondary-content">
                 <strong class="text-center">Compound Data</strong>
                 <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">${currency(breakdownData.govTaxes)}</span></div>
                 <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">${currency(breakdownData.txTaxes)}</span></div>

@@ -9,7 +9,11 @@ const config = {
 		'./src/**/*.{html,js,svelte,ts}', 
     	'./node_modules/svelte-ux/**/*.{svelte,js}'
 	],
-
+	safelist: [
+		{
+			pattern: /(bg|text)-(red|green|blue|yellow)-.*/,
+		}
+	],
 	theme: {
 		extend: {}
 	},

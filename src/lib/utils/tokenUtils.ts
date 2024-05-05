@@ -25,12 +25,17 @@ export async function getRewardsData(project: DebtBoxProject, signerAddress: Add
             abi: contractData.diamondAbi,
         }
 
-        const [ stakedNfts, pendingRewards, rewardsPerSecond ] = <bigint[]>await multicall(config, {
+        const [ stakedNfts, stakedMicros, pendingRewards, rewardsPerSecond ] = <bigint[]>await multicall(config, {
             allowFailure: false,
             contracts: [
                 {
                     ...rewardsDistributorDiamondContract,
                     functionName: 'stakedBalanceOf',
+                    args: [signerAddress]
+                },
+                {
+                    ...rewardsDistributorDiamondContract,
+                    functionName: 'stakedMicroBalanceOf',
                     args: [signerAddress]
                 },
                 {
@@ -46,11 +51,13 @@ export async function getRewardsData(project: DebtBoxProject, signerAddress: Add
             ]
         })
         console.log('🚀 ~ getRewardsData ~ stakedNFts:', stakedNfts)
+        console.log('🚀 ~ getRewardsData ~ stakedMicros:', stakedMicros)
         console.log('🚀 ~ getRewardsData ~ pendingRewards:', pendingRewards)
         console.log('🚀 ~ getRewardsData ~ rewardsPerSecond:', rewardsPerSecond)
 
         return {
             stakedNfts,
+            stakedMicros,
             pendingRewards,
             rewardsPerSecond
         }

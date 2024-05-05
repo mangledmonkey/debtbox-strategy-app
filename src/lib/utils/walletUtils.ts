@@ -58,7 +58,7 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
     return walletData;
 }
 
-export function getWalletTotals(tokens: TokenData[]): WalletTotals  {
+export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
     // console.log('🚀 ~ getWalletTotals ~ tableData:', tokens)
     const walletTotals: WalletTotals = {
         totalNfts: 0,
@@ -69,15 +69,20 @@ export function getWalletTotals(tokens: TokenData[]): WalletTotals  {
         rewardsBalance: 0,
     }
   
-    for (let i = 0; i < tokens.length; i += 1) {
-        const token = tokens[i]
+    if (tokens) {
         
-        walletTotals.totalNfts += token.totalNfts;
-        walletTotals.stakedNfts += token.stakedNfts;
-        walletTotals.unstakedNfts += token.unstakedNfts;
-        walletTotals.dailyReturns = roundUnits(walletTotals.dailyReturns + token.dailyWalletRewardsValue);
-        walletTotals.walletBalance = roundUnits(walletTotals.walletBalance + token.walletValue);
-        walletTotals.rewardsBalance = roundUnits(walletTotals.rewardsBalance + token.rewardsValue);
+        for (let i = 0; i < tokens.length; i += 1) {
+            const token = tokens[i]
+            
+            if (token) {
+                walletTotals.totalNfts += token.totalNfts;
+                walletTotals.stakedNfts += token.stakedNfts;
+                walletTotals.unstakedNfts += token.unstakedNfts;
+                walletTotals.dailyReturns = roundUnits(walletTotals.dailyReturns + token.dailyWalletRewardsValue);
+                walletTotals.walletBalance = roundUnits(walletTotals.walletBalance + token.walletValue);
+                walletTotals.rewardsBalance = roundUnits(walletTotals.rewardsBalance + token.rewardsValue);
+            }
+        }
     }
 
     return walletTotals;

@@ -13,6 +13,7 @@ export type DiamondInfo = {
 
 export type DiamondData = {
     stakedNfts: bigint,
+    stakedMicros: bigint,
     pendingRewards: bigint,
     rewardsPerSecond: bigint,
 }

@@ -3,7 +3,7 @@
     import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts'
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
 	import { Tab, Tabs, Card } from 'svelte-ux';
-	import { ProjectsTable, RewardsCollectionTarget, SummaryCard } from '$lib/components';
+	import { TokensTable, RewardsCollectionTarget, SummaryCard } from '$lib/components';
 
 	// export let data;
     let value: TokensData;
@@ -18,7 +18,7 @@
     $: $walletData && !value ? value = $walletData[0].value : '';
 </script>
 {#if $loading}
-	<p>Loading data...</p>
+	<p>Connecting wallet...</p>
 {:else if $connected && $signerAddress}
     {#if $walletTotals}
         <SummaryCard walletTotals={$walletTotals} />
@@ -29,14 +29,14 @@
             placement="top"
             bind:value
             classes={{
-                root: 'my-5',
+                root: 'my-5 overflow-hidden',
                 content: 'border px-4 py-5 rounded-b rounded-tr',
                 tab: { root: 'rounded-t' }
             }}
         >            
             <svelte:fragment slot="content" let:value>
                     <RewardsCollectionTarget targetData={value.totals} />
-                <ProjectsTable tokenData={value.tokens} />
+                <TokensTable tokenData={value.tokens} />
             </svelte:fragment>
         </Tabs>
     {:else}   
