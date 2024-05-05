@@ -7,7 +7,8 @@ const svelteUx = require('svelte-ux/plugins/tailwind.cjs');
 const config = {
 	content: [
 		'./src/**/*.{html,js,svelte,ts}', 
-    	'./node_modules/svelte-ux/**/*.{svelte,js}'
+    	'./node_modules/svelte-ux/**/*.{svelte,js}',
+		'./node_modules/layerchart/**/*.{svelte,js}'
 	],
 	safelist: [
 		{
