@@ -57,8 +57,8 @@
             <div class="flex gap-10 p-4 justify-center flex-row">
                 <div class="flex flex-col text-center gap-2">
                     <strong>Current Rewards</strong>
-                    <span class="text-4xl">
-                        ${currency(targetData.rewardsBalance)}
+                    <span class={`text-4xl text-${statusColor}`}>
+                        <strong>{currency(targetData.rewardsBalance).format()}</strong>
                     </span>
                     <!-- <Field label="Override" labelPlacement="inset"></Field> -->
                 </div>
@@ -76,26 +76,26 @@
     <div>
         <h3 class="text-4xl text-center mb-2">Compound Breakdown</h3>
         <Card class="flex gap-4 p-4 justify-around align-middle flex-row">
-            <div class="flex flex-col gap-5 justify-center">
-                <div class="flex flex-col text-center gap-2">
+            <div class="flex flex-col gap-2 justify-center">
+                <div class="flex flex-col text-center">
                     <strong>New NFTs</strong>
-                    <span class="text-3xl">
-                        {breakdownData.newNfts}
+                    <span class="text-3xl text-green-500">
+                        <strong>{breakdownData.newNfts}</strong>
                     </span>
                 </div>
-                <div class="flex flex-col text-center gap-2">
+                <div class="flex flex-col text-center">
                     <strong>Daily Increase</strong>
-                    <span class="text-3xl">
-                        ${currency(breakdownData.dailyIncrease)}
+                    <span class="text-4xl text-green-500">
+                        <strong>${currency(breakdownData.dailyIncrease)}</strong>
                     </span>
                 </div>
             </div>
-            <div class="flex flex-col border-secondary-content">
+            <div class="flex flex-col border-secondary-content gap-1">
                 <strong class="text-center">Compound Data</strong>
-                <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">${currency(breakdownData.govTaxes)}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">${currency(breakdownData.txTaxes)}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Personal Res:</span> <span class="text-right">${currency(breakdownData.personalReserve)}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Usable Claim:</span> <span class="text-right">${currency(breakdownData.usableClaim)}</span></div>
+                <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">{currency(breakdownData.govTaxes).format()}</span></div>
+                <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">{currency(breakdownData.txTaxes).format()}</span></div>
+                <div class="grid grid-cols-2 justify-between"><span>Reserve:</span> <span class="text-right">{currency(breakdownData.personalReserve).format()}</span></div>
+                <div class="grid grid-cols-2 justify-between"><span>Usable Claim:</span> <span class="text-right"><strong>{currency(breakdownData.usableClaim).format()}</strong></span></div>
             </div>
                     <!-- <div class="flex flex-col text-center">
                 <strong>Wallet Balance</strong>
