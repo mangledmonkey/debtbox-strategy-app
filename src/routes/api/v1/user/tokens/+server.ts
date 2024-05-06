@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import type { Option, Options, TokenData, WalletTotals } from '$lib/types';
 import type { Address } from 'viem';
-import { truncateEthAddress, getDebtBoxData, roundUnits } from '$lib/utils';
+import { truncateEthAddress, getDebtBoxData, roundUnits, getWalletTotals } from '$lib/utils';
 import { getTokensData } from '$lib/helpers'
 
 export const POST: RequestHandler = async (requestEvent) => {
@@ -40,45 +40,37 @@ export const POST: RequestHandler = async (requestEvent) => {
 	// Create and insert summary table
 	if (wallets.length > 1) {
 		const summaryTable: TokenData[] = [];
-		const summaryTotals: WalletTotals = {
-			totalNfts: 0,
-			stakedNfts: 0,
-			unstakedNfts: 0,
-			dailyReturns: 0,
-			walletBalance: 0,
-			rewardsBalance: 0,
-		};
-		
+
 		for (let i = 0; i < walletData.length; i += 1) {
 			const wallet: Option = walletData[i];
 			const walletTotals: WalletTotals = wallet.value.totals; 
 
 			for (let c = 0; c < wallet.value.tokens.length; c += 1) {
 				const walletCell = wallet.value.tokens[c];
-				const cellIndex = summaryTable.findIndex(t => t.id === walletCell.id);
-				// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
 
-				if (cellIndex === -1) {
-					summaryTable.push(walletCell)
-				} else {
-					// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
-					summaryTable[cellIndex].inWallet += walletCell.inWallet; 
-					summaryTable[cellIndex].walletValue += walletCell.walletValue;
-					summaryTable[cellIndex].stakedNfts += walletCell.stakedNfts;
-					summaryTable[cellIndex].unstakedNfts += walletCell.unstakedNfts;
-					summaryTable[cellIndex].totalNfts += walletCell.totalNfts;
-					summaryTable[cellIndex].rewards += walletCell.rewards;
-					summaryTable[cellIndex].rewardsValue += walletCell.rewardsValue;
+				if (walletCell) {
+					const cellIndex = summaryTable.findIndex(t => t.id === walletCell.id);
+					// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
+	
+					if (cellIndex === -1) {
+						summaryTable.push(walletCell)
+					} else {
+						// console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
+						summaryTable[cellIndex].inWallet += walletCell.inWallet; 
+						summaryTable[cellIndex].walletValue += walletCell.walletValue;
+						summaryTable[cellIndex].stakedNfts += walletCell.stakedNfts;
+						summaryTable[cellIndex].unstakedNfts += walletCell.unstakedNfts;
+						summaryTable[cellIndex].totalNfts += walletCell.totalNfts;
+						summaryTable[cellIndex].rewards += walletCell.rewards;
+						summaryTable[cellIndex].rewardsValue += walletCell.rewardsValue;
+					}
 				}
 			}
-
-			summaryTotals.totalNfts += walletTotals.totalNfts;
-			summaryTotals.stakedNfts += walletTotals.stakedNfts;
-			summaryTotals.unstakedNfts += walletTotals.unstakedNfts;
-			summaryTotals.dailyReturns = roundUnits(summaryTotals.dailyReturns + walletTotals.dailyReturns);
-			summaryTotals.walletBalance = roundUnits(summaryTotals.walletBalance + walletTotals.walletBalance);
-			summaryTotals.rewardsBalance = roundUnits(summaryTotals.rewardsBalance + walletTotals.rewardsBalance);
 		}
+
+		const summaryTotals = getWalletTotals(summaryTable)
+
+		// summaryTotals.avgDailyNftReturn = summaryTotals.dailyReturns / summaryTotals.stakedNfts;
 		
 		const summaryWalletData: Option = {
 			label: 'Summary',

@@ -1,8 +1,6 @@
 <script lang="ts">
 	import '../app.pcss';
-	import { browser } from '$app/environment';
 	import type { Address } from 'viem';
-    import type { Options } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { defaultConfig } from 'svelte-wagmi';
 	import { mainnet, bsc } from '@wagmi/core/chains';
@@ -12,7 +10,7 @@
 	import { injected } from '@wagmi/connectors';
 	import { AppLayout, AppBar, NavItem, Button } from 'svelte-ux';
 	import LoaderCircle from '~icons/lucide/loader-circle';
-	import { page } from '$app/stores';
+	import { page } from '$app/stores'
 	import { 
 		truncateEthAddress,
 		getUserWallets,
@@ -23,8 +21,7 @@
 		getWalletDataCtx,
 		setWalletTotalsCtx,
 		getWalletTotalsCtx,
-		setCompoundValuesCtx,
-		getCompoundValuesCtx,
+		setStrategyValuesCtx,
 	} from '$lib/contexts';
 	import { defaultValues } from '$lib/data/defaultCompoundValues';
 
@@ -34,7 +31,7 @@
 	setWalletTotalsCtx(undefined);
 	const walletTotals = getWalletTotalsCtx();
 
-	setCompoundValuesCtx(defaultValues);
+	setStrategyValuesCtx(defaultValues);
 
 	// Get user's wallets if available
 	async function getTableData(

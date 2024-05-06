@@ -3,7 +3,7 @@ import type { TokenData, WalletTotals } from ".";
 export type Option = { 
     label: string; 
     value: {
-        tokens: TokenData[],
+        tokens: (void|TokenData)[],
         totals: WalletTotals,
     }
 }

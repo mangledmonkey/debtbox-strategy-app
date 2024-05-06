@@ -1,14 +1,13 @@
 import { writable, type Writable } from 'svelte/store'
 import { getContext, setContext } from 'svelte'
-import type { DefaultValues } from '$lib/types'
+import type { CompoundValues, CompoundValuesContext } from '$lib/types'
 
-type Context = Writable<DefaultValues>
 
-export function setCompoundValuesCtx(data: DefaultValues) {
-	const compoundValues = writable<DefaultValues>(data)
+export function setCompoundValuesCtx(data: CompoundValues|undefined) {
+	const compoundValues = writable<CompoundValues>(data)
 	setContext('compoundValues', compoundValues)
 }
 
 export function getCompoundValuesCtx() {
-	return getContext<Context>('compoundValues')
+	return getContext<CompoundValuesContext|undefined>('compoundValues')
 }

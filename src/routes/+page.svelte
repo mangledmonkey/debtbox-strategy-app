@@ -3,7 +3,7 @@
     import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts'
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
 	import { Tab, Tabs, Card } from 'svelte-ux';
-	import { TokensTable, RewardsCollectionTarget, SummaryCard } from '$lib/components';
+	import { CompoundsChart, TokensTable, RewardsCollectionTarget, SummaryCard } from '$lib/components';
 
 	// export let data;
     let value: TokensData;
@@ -35,7 +35,8 @@
             }}
         >            
             <svelte:fragment slot="content" let:value>
-                    <RewardsCollectionTarget targetData={value.totals} />
+                <RewardsCollectionTarget walletTotals={value.totals} />
+                <CompoundsChart walletTotals={value.totals} />
                 <TokensTable tokenData={value.tokens} />
             </svelte:fragment>
         </Tabs>

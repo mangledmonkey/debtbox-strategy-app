@@ -1,5 +1,6 @@
-import TokensTable from './tokensTable.svelte'
-import RewardsCollectionTarget from './rewardsCollectionTarget.svelte'
-import SummaryCard from './summaryCard.svelte'
+import CompoundsChart from './CompoundsChart.svelte';
+import TokensTable from './TokensTable.svelte';
+import RewardsCollectionTarget from './RewardsCollectionTarget.svelte';
+import SummaryCard from './SummaryCard.svelte';
 
-export { TokensTable, RewardsCollectionTarget, SummaryCard }
+export { CompoundsChart, TokensTable, RewardsCollectionTarget, SummaryCard }

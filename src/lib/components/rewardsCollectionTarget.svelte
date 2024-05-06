@@ -1,13 +1,11 @@
 <script lang="ts">
     import currency from 'currency.js'
-	import { roundUnits } from "$lib/utils";
 	import { Badge, Card, Field } from "svelte-ux";
     import type { WalletTotals } from '$lib/types';
-    import { defaultValues } from '$lib/data/defaultCompoundValues';
-	import { getCompoundValuesCtx } from '$lib/contexts';
+	import { getStrategyValuesCtx } from '$lib/contexts';
 
-    export let targetData: WalletTotals;
-    const compoundValues = getCompoundValuesCtx();
+    export let walletTotals: WalletTotals;
+    const strategyValues = getStrategyValuesCtx();
 
     function getStatusColor(time: number) {
         if (time <= 0) {
@@ -31,92 +29,92 @@
     }
 
     // Calculations
-    function updateCompoundBreakdown(targetData: WalletTotals) {
-        breakdownData.govTaxes = targetData.rewardsBalance * ($compoundValues.taxesReserved/100);
-        breakdownData.txTaxes = targetData.rewardsBalance * ($compoundValues.txTaxes/100);
-        breakdownData.personalReserve = targetData.rewardsBalance * ($compoundValues.personalReserve/100);
-        breakdownData.usableClaim = targetData.rewardsBalance - (breakdownData.govTaxes + breakdownData.txTaxes + breakdownData.personalReserve);
-        breakdownData.newNfts = Number(currency(breakdownData.usableClaim / $compoundValues.nftCost, {precision: 0}));
-        breakdownData.dailyIncrease = breakdownData.newNfts * (targetData.dailyReturns / targetData.totalNfts) || 0;
+    function updateCompoundBreakdown(walletTotals: WalletTotals) {
+        breakdownData.govTaxes = walletTotals.rewardsBalance * ($strategyValues.govTaxes/100);
+        breakdownData.txTaxes = walletTotals.rewardsBalance * ($strategyValues.txTaxes/100);
+        breakdownData.personalReserve = walletTotals.rewardsBalance * ($strategyValues.personalReserve/100);
+        breakdownData.usableClaim = walletTotals.rewardsBalance - (breakdownData.govTaxes + breakdownData.txTaxes + breakdownData.personalReserve);
+        breakdownData.newNfts = Math.floor(breakdownData.usableClaim / $strategyValues.nftCost);
+        breakdownData.dailyIncrease = breakdownData.newNfts * walletTotals.avgDailyNftReturn || 0;
     }
 
     let collectionTarget: number = 0;
     let countdown: number = 0;
     let statusColor: string;
     
-    $: collectionTarget = targetData.dailyReturns * 30;
-    $: countdown = Number(currency((collectionTarget - targetData.rewardsBalance) / targetData.dailyReturns, { precision: 1 })) || 0;
+    $: collectionTarget = walletTotals.dailyReturns * 30;
+    $: countdown = Number(currency((collectionTarget - walletTotals.rewardsBalance) / walletTotals.dailyReturns, { precision: 1 })) || 0;
     $: statusColor = getStatusColor(countdown);
-    $: targetData, updateCompoundBreakdown(targetData);
+    $: walletTotals, updateCompoundBreakdown(walletTotals);
 </script>
-
-<div class="flex justify-around p-4 flex-row">
-    <div>
-        <h3 class="text-4xl text-center mb-2">Rewards Status</h3>
-        <Card class="flex justify-center p-4">
-            <div class="flex gap-10 p-4 justify-center flex-row">
-                <div class="flex flex-col text-center gap-2">
-                    <strong>Current Rewards</strong>
-                    <span class={`text-4xl text-${statusColor}`}>
-                        <strong>{currency(targetData.rewardsBalance).format()}</strong>
-                    </span>
-                    <!-- <Field label="Override" labelPlacement="inset"></Field> -->
+<article id="collectionTargets">
+    <h3>Collection Targets</h3>
+    <div class="flex justify-evenly gap-5 p-4 flex-row">
+        <div>
+            <Card class="flex justify-start gap-4 p-4 w-full h-full">
+                <h4 class="text-2xl text-center mb-2">Rewards Status</h4>
+                <div class="flex justify-center">
+                    <div class="flex gap-2 justify-center flex-col">
+                        <div class="flex flex-col text-center gap-1">
+                            <strong>Current Rewards</strong>
+                            <span class={`text-4xl text-${statusColor} font-bold`}>
+                                {currency(walletTotals.rewardsBalance).format()}
+                            </span>
+                        </div>
+                        <div class="flex flex-col text-center gap-1">
+                            <strong>Daily Rewards</strong>
+                            <span class={`text-2xl text-${statusColor} font-bold`}>
+                                {currency(walletTotals.dailyReturns).format()}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center gap-">
-                    <strong class="mb-3">Collection Target</strong>
+            </Card>
+        </div>
+        <div>
+            <Card class="flex flex-col justify-normal gap-4 p-4 w-full h-full">
+                <h4 class="text-2xl text-center mb-2">Collection Status</h4>
+                <div class="flex flex-col text-center justify-self-center">
+                    <strong class="mb-1">Collection Target</strong>
                     <Badge value={countdown} dot class={`bg-${statusColor}`}>
-                        <span class="text-3xl">${currency(collectionTarget)}</span>
+                        <span class="text-4xl">{currency(collectionTarget).format()}</span>
                     </Badge>
                         <span class={`text-${statusColor}`}>{countdown} days</span>
                 </div>
-            </div>
-        </Card>
-    </div>
+            </Card>
+        </div>
 
-    <div>
-        <h3 class="text-4xl text-center mb-2">Compound Breakdown</h3>
-        <Card class="flex gap-4 p-4 justify-around align-middle flex-row">
-            <div class="flex flex-col gap-2 justify-center">
-                <div class="flex flex-col text-center">
-                    <strong>New NFTs</strong>
-                    <span class="text-3xl text-green-500">
-                        <strong>{breakdownData.newNfts}</strong>
-                    </span>
+        <div>
+            <Card class="flex justify-normal gap-4 p-4 flex-col w-full h-full">
+                <h4 class="text-2xl text-center mb-2 self-gap-0">Compound Breakdown</h4>
+                <div class="flex flex-row gap-2 justify-evenly">
+                    <div class="flex flex-col text-center">
+                        <strong>New NFTs</strong>
+                        <span class="text-3xl text-green-500 font-bold">
+                            {breakdownData.newNfts}
+                        </span>
+                    </div>
+                    <div class="flex flex-col text-center">
+                        <strong>Daily Increase</strong>
+                        <span class="text-3xl text-green-500 font-bold">
+                            ${currency(breakdownData.dailyIncrease)}
+                        </span>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center">
-                    <strong>Daily Increase</strong>
-                    <span class="text-4xl text-green-500">
-                        <strong>${currency(breakdownData.dailyIncrease)}</strong>
-                    </span>
+                <div class="flex flex-col border-secondary-content gap-1 justify-center">
+                    <strong>Compound Data</strong>
+                    <div class="flex flex-row justify-between gap-4">
+                        <div>
+                            <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">{currency(breakdownData.govTaxes).format()}</span></div>
+                            <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">{currency(breakdownData.txTaxes).format()}</span></div>
+                        </div>
+                        <div>
+                            <div class="grid grid-cols-2 justify-between"><span>Reserve:</span> <span class="text-right">{currency(breakdownData.personalReserve).format()}</span></div>
+                            <div class="grid grid-cols-2 justify-between"><span>Usable Claim:</span> <span class="text-right font-bold">{currency(breakdownData.usableClaim).format()}</span></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="flex flex-col border-secondary-content gap-1">
-                <strong class="text-center">Compound Data</strong>
-                <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">{currency(breakdownData.govTaxes).format()}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">{currency(breakdownData.txTaxes).format()}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Reserve:</span> <span class="text-right">{currency(breakdownData.personalReserve).format()}</span></div>
-                <div class="grid grid-cols-2 justify-between"><span>Usable Claim:</span> <span class="text-right"><strong>{currency(breakdownData.usableClaim).format()}</strong></span></div>
-            </div>
-                    <!-- <div class="flex flex-col text-center">
-                <strong>Wallet Balance</strong>
-                <span class="text-3xl">${$walletTotals.walletBalance}</span>
-            </div> -->
-            <!-- <div class="flex flex-col text-center">
-                <strong>Wallet Balance</strong>
-                <span class="text-3xl">${$walletTotals.walletBalance}</span>
-            </div>
-            <div class="flex flex-col text-center">
-                <strong>Total Value</strong>
-                <span class="text-3xl">${ $walletTotals.rewardsBalance + $walletTotals.walletBalance }</span>
-            </div>
-            <div class="flex flex-col text-center">
-                <strong>Staked NFTs</strong>
-                <span class="text-3xl">{$walletTotals.stakedNfts}</span>
-            </div>
-            <div class="flex flex-col text-center">
-                <strong>Unstaked NFTs</strong>
-                <span class="text-3xl">{$walletTotals.unstakedNfts}</span>
-            </div> -->
-        </Card>
+            </Card>
+        </div>
     </div>
-</div>
+</article>

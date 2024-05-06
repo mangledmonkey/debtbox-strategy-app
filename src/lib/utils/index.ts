@@ -2,6 +2,7 @@ export * from './contractUtils';
 export * from './debtBoxUtils';
 export * from './diamondUtils'
 export * from './shadcn';
+export * from './strategyUtils';
 export * from './tokenUtils';
 export * from './truncateEthAddress';
 export * from './utils';

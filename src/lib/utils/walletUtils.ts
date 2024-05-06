@@ -67,10 +67,11 @@ export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
         dailyReturns: 0,
         walletBalance: 0,
         rewardsBalance: 0,
+        avgDailyNftReturn: 0,
     }
   
     if (tokens) {
-        
+        // Sum values for all tokens
         for (let i = 0; i < tokens.length; i += 1) {
             const token = tokens[i]
             
@@ -78,11 +79,14 @@ export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
                 walletTotals.totalNfts += token.totalNfts;
                 walletTotals.stakedNfts += token.stakedNfts;
                 walletTotals.unstakedNfts += token.unstakedNfts;
-                walletTotals.dailyReturns = roundUnits(walletTotals.dailyReturns + token.dailyWalletRewardsValue);
-                walletTotals.walletBalance = roundUnits(walletTotals.walletBalance + token.walletValue);
-                walletTotals.rewardsBalance = roundUnits(walletTotals.rewardsBalance + token.rewardsValue);
+                walletTotals.dailyReturns = walletTotals.dailyReturns + token.dailyWalletRewardsValue;
+                walletTotals.walletBalance = walletTotals.walletBalance + token.walletValue;
+                walletTotals.rewardsBalance = walletTotals.rewardsBalance + token.rewardsValue;
             }
         }
+
+        // Calculate average returns per nft
+        walletTotals.avgDailyNftReturn = walletTotals.dailyReturns / walletTotals.stakedNfts;
     }
 
     return walletTotals;

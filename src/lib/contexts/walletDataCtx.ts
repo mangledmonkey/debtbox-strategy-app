@@ -1,8 +1,7 @@
 import { writable, type Writable } from 'svelte/store'
 import { getContext, setContext } from 'svelte'
-import type { Options } from '$lib/types'
+import type { Options, WalletDataContext } from '$lib/types'
 
-type Context = Writable<Options>
 
 export function setWalletDataCtx(data: Options|undefined) {
 	const walletData = writable<Options>(data)
@@ -10,5 +9,5 @@ export function setWalletDataCtx(data: Options|undefined) {
 }
 
 export function getWalletDataCtx() {
-	return getContext<Context>('walletData')
+	return getContext<WalletDataContext>('walletData')
 }

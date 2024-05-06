@@ -1,5 +1,4 @@
 const colors = require('tailwindcss/colors');
-const plugin = require('tailwindcss/plugin');
 
 const svelteUx = require('svelte-ux/plugins/tailwind.cjs');
 
