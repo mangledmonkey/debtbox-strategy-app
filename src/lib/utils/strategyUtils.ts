@@ -11,7 +11,7 @@ export function getCompoundValues(walletTotals: WalletTotals, strategyValues: St
 
     for (let i = 0; i < strategyValues.projectionMonths; i += 1) {
         const prevMonth = compoundValues[i-1] || null
-
+        const id = i;
         const date: Date = new Date();
         date.setMonth(date.getMonth() + i);
 
@@ -51,13 +51,15 @@ export function getCompoundValues(walletTotals: WalletTotals, strategyValues: St
         const dailyRewardsIncrease: number = nftsNew * (walletTotals.dailyReturns / walletTotals.stakedNfts)
         const dailyPercentIncrease: number = dailyRewardsIncrease / dailyRewardsValue;
         const roiDaily: number = dailyRewardsValue / totalCost;
+        const roiWeekly: number = weeklyRewardsValue / totalCost;
         const roiMonthly: number = monthlyRewardsValue / totalCost;
         const roiAnnualized: number = annualizedRewardsValue / totalCost;
         const yearlyRewardsEarned: number = prevMonth
-            ? prevMonth.yearlyRewardsEarned + annualizedRewardsValue
-            : annualizedRewardsValue;
+            ? prevMonth.yearlyRewardsEarned + monthlyRewardsValue
+            : monthlyRewardsValue;
 
         const values: CompoundValue = {
+            id,
             date,
             dailyRewardsValue,
             weeklyRewardsValue,
@@ -83,6 +85,7 @@ export function getCompoundValues(walletTotals: WalletTotals, strategyValues: St
             dailyRewardsIncrease,
             dailyPercentIncrease,
             roiDaily,
+            roiWeekly,
             roiMonthly,
             roiAnnualized,
             yearlyRewardsEarned

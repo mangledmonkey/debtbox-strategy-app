@@ -15,7 +15,7 @@
     $: console.log('$walletData:', $walletData)
     $: console.log('$walletTotals:', $walletTotals)
 	// $: console.log('🚀 ~ userWallets:', userWallets);
-    $: $walletData && !value ? value = $walletData[0].value : '';
+    $: $walletData && $walletData.length > 0 && !value ? value = $walletData[0].value : '';
 </script>
 {#if $loading}
 	<p>Connecting wallet...</p>

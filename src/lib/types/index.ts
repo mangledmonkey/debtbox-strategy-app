@@ -6,6 +6,7 @@ export * from "./debtBoxToken";
 export * from './diamond';
 export *  from "./facetData";
 export * from './mulitcallData';
+export * from './rewardsChartData';
 export * from './strategyValues'
 export * from './svelteUx'
 export *  from "./tokensData";

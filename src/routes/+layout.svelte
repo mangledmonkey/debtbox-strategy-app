@@ -45,7 +45,9 @@
 			
 			// Set the store
 			$walletData = await getWalletData(userWallets, $chainId);
-			$walletTotals = $walletData[0].value.totals;
+			if ($walletData.length > 0) {
+				$walletTotals = $walletData[0].value.totals;
+			}
 		}
 	}
 

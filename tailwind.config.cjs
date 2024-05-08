@@ -12,6 +12,9 @@ const config = {
 	safelist: [
 		{
 			pattern: /(bg|text)-(red|green|blue|yellow)-.*/,
+		},
+		{
+			pattern: /w-.*/,
 		}
 	],
 	theme: {

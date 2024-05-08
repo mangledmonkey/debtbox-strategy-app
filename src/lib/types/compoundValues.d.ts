@@ -1,4 +1,5 @@
 export type CompoundValue = {
+    id: number,
     date: Date,
     dailyRewardsValue: number,
     weeklyRewardsValue: number,
@@ -24,6 +25,7 @@ export type CompoundValue = {
     dailyRewardsIncrease: number,
     dailyPercentIncrease: number,
     roiDaily: number,
+    roiWeekly: number,
     roiMonthly: number,
     roiAnnualized: number,
     yearlyRewardsEarned: number
