@@ -1,4 +1,5 @@
 export type WalletTotals = {
+    debtPrice: number,
     totalNfts: number,
     stakedNfts: number,
     unstakedNfts: number,

@@ -1,6 +1,5 @@
 import type { Address } from "viem";
 import type { Options, TokenData, WalletTotals } from "$lib/types";
-import { roundUnits } from "./utils";
 
 export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...")
@@ -61,6 +60,7 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
 export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
     // console.log('🚀 ~ getWalletTotals ~ tableData:', tokens)
     const walletTotals: WalletTotals = {
+        debtPrice: 0,
         totalNfts: 0,
         stakedNfts: 0,
         unstakedNfts: 0,
@@ -76,6 +76,7 @@ export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
             const token = tokens[i]
             
             if (token) {
+                if (token.name === "DEBT") walletTotals.debtPrice = token.price;
                 walletTotals.totalNfts += token.totalNfts;
                 walletTotals.stakedNfts += token.stakedNfts;
                 walletTotals.unstakedNfts += token.unstakedNfts;

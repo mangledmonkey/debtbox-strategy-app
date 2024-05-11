@@ -1,13 +1,9 @@
 <script lang="ts">
     import currency from 'currency.js';
-    import type { Address, Chain } from 'viem';
     import type { 
-        DebtBoxProject, 
-        DebtBoxToken, 
         TokenData 
     } from '$lib/types';
-    import { getTokensData } from '$lib/helpers'
-    import { Table, Card } from 'svelte-ux';
+    import { Table} from 'svelte-ux';
 
     export let tokenData: TokenData[];
     console.log('🚀 ~ tokenData:', tokenData)

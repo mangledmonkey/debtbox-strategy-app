@@ -1,14 +1,15 @@
 <script lang="ts">
-    import type { DebtBoxProject, DebtBoxToken, Options, TokensData } from '$lib/types';
+    import type { TokensData } from '$lib/types';
     import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts'
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
 	import { Tab, Tabs, Card } from 'svelte-ux';
-	import { CompoundsChart, TokensTable, RewardsCollectionTarget, SummaryCard } from '$lib/components';
+	import { CompoundsChart, TokensTable, RewardsCollectionTarget, SummaryCard, GoalsWidget } from '$lib/components';
 
 	// export let data;
     let value: TokensData;
     const walletData = getWalletDataCtx();
     const walletTotals = getWalletTotalsCtx();
+
 
 	$: console.log('🚀 ~ $signerAddress:', $signerAddress);
 	// $: console.log('🚀 ~ value:', value);
@@ -33,10 +34,11 @@
                 content: 'border px-4 py-5 rounded-b rounded-tr',
                 tab: { root: 'rounded-t' }
             }}
-        >            
+        >
             <svelte:fragment slot="content" let:value>
                 <RewardsCollectionTarget walletTotals={value.totals} />
                 <CompoundsChart walletTotals={value.totals} />
+                <GoalsWidget />
                 <TokensTable tokenData={value.tokens} />
             </svelte:fragment>
         </Tabs>

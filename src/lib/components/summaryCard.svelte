@@ -6,8 +6,12 @@
 export let walletTotals: WalletTotals;
 
 </script>
-<Card class="mt-5">
+<Card>
     <div class="flex gap-2 p-4 justify-between">
+        <div class="flex flex-col text-center">
+            <strong>DEBT Price</strong>
+            <span class="text-2xl">${currency(walletTotals.debtPrice)}</span>
+        </div>
         <div class="flex flex-col text-center">
             <strong>Daily Rewards</strong>
             <span class="text-2xl">${currency(walletTotals.dailyReturns)}</span>

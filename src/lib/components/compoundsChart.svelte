@@ -11,6 +11,7 @@
     import { Chart, Svg, Axis, Spline, Highlight, Tooltip, TooltipItem } from 'layerchart';
     import { Collapse, formatDate, Paginate, Pagination, PeriodType, Table } from "svelte-ux";
     import currency from "currency.js";
+	import GoalsWidget from "./GoalsWidget.svelte";
     
     // export let tokenData: TokenData[];
     export let walletTotals: WalletTotals;
@@ -55,6 +56,7 @@
                 <TooltipItem label="weekly ROI" value={`${parseFloat((data.roiWeekly * 100).toString()).toFixed(2)}%`} />
                 <TooltipItem label="monthly rewards" value={currency(data.monthlyRewardsValue).format()} />
                 <TooltipItem label="monthly ROI" value={`${parseFloat((data.roiMonthly * 100).toString()).toFixed(2)}%`} />
+                <TooltipItem label="investment" value={currency(data.totalCost).format()} />
                 <TooltipItem label="annualized rewards" value={currency(data.annualizedRewardsValue).format()} />
                 <TooltipItem label="annualized ROI" value={`${parseFloat((data.roiAnnualized * 100).toString()).toFixed(2)}%`} />
             </Tooltip>

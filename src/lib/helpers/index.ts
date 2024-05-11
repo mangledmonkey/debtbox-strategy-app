@@ -1,1 +1,0 @@
-export { getTokensData } from './projectsTableHelpers'
