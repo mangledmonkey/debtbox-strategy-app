@@ -1,6 +1,6 @@
 import type { Abi } from "viem";
 
-const RewardsDistributorDiamondAbi: Abi = [
+export const RewardsDistributorDiamondAbi: Abi = [
     {
       type: 'error',
       inputs: [

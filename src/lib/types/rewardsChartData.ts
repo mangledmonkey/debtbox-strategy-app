@@ -5,9 +5,9 @@ export type RewardsChartDataValues = {
    rate: number,
    nfts: number,
    roi: number,
-}
+};
 
 export type RewardsChartData = [
    string,
    RewardsChartDataValues[]
-]
+];

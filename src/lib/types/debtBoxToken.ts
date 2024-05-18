@@ -1,3 +1,5 @@
+import type { Address } from 'viem';
+
 export type DebtBoxToken = {
     type: string,
     id: string,
@@ -17,6 +19,6 @@ export type DebtBoxToken = {
         priceUsd: number,
         h24Change: number,
         createdAt: string,
-        updatedAt; string,
+        updatedAt: string,
     }
-}
+};

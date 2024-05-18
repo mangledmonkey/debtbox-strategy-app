@@ -40,7 +40,7 @@
     $: rewardsTotals = getRewardsTotals(tokenData)
 </script>
 
-<article class="mt-5" id="projectTokensTable">
+<article id="projectTokensTable">
     <h3>Project Tokens Table</h3>
     <Table
         class="overflow-x-auto"
@@ -135,7 +135,6 @@
                     th:'border-r-2'
                 }
             },
-
         ]}>
         <tbody slot="data" let:columns let:data let:getCellValue>
             {#each data ?? [] as rowData, rowIndex}

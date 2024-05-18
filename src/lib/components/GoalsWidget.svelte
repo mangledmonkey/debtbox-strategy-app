@@ -5,7 +5,8 @@
     const queryClient = new QueryClient();
 </script>
 
-<section id="goalsWidget" class="mt-4">
+<section id="goalsWidget" class="w-full">
+    <h3>Goals</h3>
     <QueryClientProvider client={queryClient}>
         <Goals />
     </QueryClientProvider>

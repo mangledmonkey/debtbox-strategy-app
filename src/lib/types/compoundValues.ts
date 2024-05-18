@@ -1,3 +1,6 @@
+import type { Writable } from "svelte/store";
+import type { StrategyValues } from ".";
+
 export type CompoundValue = {
     id: number,
     date: Date,
@@ -29,8 +32,8 @@ export type CompoundValue = {
     roiMonthly: number,
     roiAnnualized: number,
     yearlyRewardsEarned: number
-}
+};
 
-export type CompoundValues = CompoundValue[]
+export type CompoundValues = CompoundValue[];
 
-export type CompoundValuesContext = Writable<StrategyValues|undefined>
+export type CompoundValuesContext = Writable<StrategyValues|undefined>;

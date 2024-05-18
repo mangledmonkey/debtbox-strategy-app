@@ -1,5 +1,5 @@
 import type { Address } from "viem";
-import type { Options, TokenData, WalletTotals } from "$lib/types";
+import type { DebtStakingData, Options, TokenData, WalletTotals } from "$lib/types";
 
 export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...")
@@ -57,9 +57,10 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
     return walletData;
 }
 
-export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
+export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: DebtStakingData): WalletTotals  {
     // console.log('🚀 ~ getWalletTotals ~ tableData:', tokens)
     const walletTotals: WalletTotals = {
+        ...debtStakingData,
         debtPrice: 0,
         totalNfts: 0,
         stakedNfts: 0,
@@ -80,14 +81,16 @@ export function getWalletTotals(tokens: (void|TokenData)[]): WalletTotals  {
                 walletTotals.totalNfts += token.totalNfts;
                 walletTotals.stakedNfts += token.stakedNfts;
                 walletTotals.unstakedNfts += token.unstakedNfts;
-                walletTotals.dailyReturns = walletTotals.dailyReturns + token.dailyWalletRewardsValue;
-                walletTotals.walletBalance = walletTotals.walletBalance + token.walletValue;
-                walletTotals.rewardsBalance = walletTotals.rewardsBalance + token.rewardsValue;
+                walletTotals.dailyReturns += token.dailyWalletRewardsValue;
+                walletTotals.walletBalance += token.walletValue;
+                walletTotals.rewardsBalance += token.rewardsValue;
             }
         }
 
         // Calculate average returns per nft
-        walletTotals.avgDailyNftReturn = walletTotals.dailyReturns / walletTotals.stakedNfts;
+        if (walletTotals.dailyReturns > 0 && walletTotals.stakedNfts > 0) {
+            walletTotals.avgDailyNftReturn = walletTotals.dailyReturns / walletTotals.stakedNfts;
+        }
     }
 
     return walletTotals;

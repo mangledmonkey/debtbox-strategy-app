@@ -11,7 +11,6 @@
     import { Chart, Svg, Axis, Spline, Highlight, Tooltip, TooltipItem } from 'layerchart';
     import { Collapse, formatDate, Paginate, Pagination, PeriodType, Table } from "svelte-ux";
     import currency from "currency.js";
-	import GoalsWidget from "./GoalsWidget.svelte";
     
     // export let tokenData: TokenData[];
     export let walletTotals: WalletTotals;
@@ -22,10 +21,9 @@
 
     $: compoundValues = getCompoundValues(walletTotals, $strategyValues);
     $: console.log('🚀 ~ compoundValues:', compoundValues)   
-
 </script>
 
-<article id="compoundStrategyChart" class="mt-5">
+<article id="compoundStrategyChart">
     <h3>Compound Strategy Chart</h3>
     <div class="h-[300px] p-4 border rounded mt-4">
         <Chart
@@ -37,20 +35,27 @@
             yNice
             padding={{ left: 16, bottom: 24 }}
             tooltip={{ mode: "bisect-x" }}
-            let:rScale
         >
             <Svg>
                 <Axis placement="left" grid rule />
                 <Axis
                 placement="bottom"
                 format={(d) => formatDate(d, PeriodType.MonthYear, { variant: "short" })}
+                grid
                 rule
                 />
                 <Spline yScale="dailyRewardsValue" class="stroke-2 stroke-primary" />
                 <Highlight points lines />
             </Svg>
-            <Tooltip header={(data) => format(data.date, "eee, MMMM do")} let:data>
-                <TooltipItem label="daily rewards" value={currency(data.dailyRewardsValue).format()} classess="text-strong" />
+            <Tooltip header={(data) => format(data.date, "MMMM do, yyyy")} let:data>
+                <TooltipItem 
+                    label="daily rewards" 
+                    value={currency(data.dailyRewardsValue).format()} 
+                    classes={{ 
+                        label: "font-bold",
+                        value: "font-bold"
+                    }}
+                />
                 <TooltipItem label="daily ROI" value={`${parseFloat((data.roiDaily * 100).toString()).toFixed(2)}%`} />
                 <TooltipItem label="weekly rewards" value={currency(data.weeklyRewardsValue).format()} />
                 <TooltipItem label="weekly ROI" value={`${parseFloat((data.roiWeekly * 100).toString()).toFixed(2)}%`} />

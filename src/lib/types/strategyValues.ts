@@ -1,3 +1,5 @@
+import type { Writable } from "svelte/store";
+
 export type StrategyValues = {
     avgCollectionCost: number,
     govTaxes: number,
@@ -9,6 +11,6 @@ export type StrategyValues = {
     debtTokenPrice: number,
     stakedDebtTokens: number,
     projectionMonths: number,
-}
+};
 
-type StrategyValuesContext = Writable<StrategyValues>
+export type StrategyValuesContext = Writable<StrategyValues>;

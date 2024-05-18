@@ -18,7 +18,11 @@ const config = {
 		}
 	],
 	theme: {
-		extend: {}
+		extend: {
+			flex: {
+				'2': '2 2 0%'
+			}
+		}
 	},
 	ux: {
 		// See customization docs

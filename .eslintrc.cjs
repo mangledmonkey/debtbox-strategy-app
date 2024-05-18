@@ -1,3 +1,4 @@
+/** @type { import("eslint").Linter.Config } */
 module.exports = {
 	root: true,
 	extends: [
@@ -35,7 +36,7 @@ module.exports = {
 		}
 	],
 	rules: {
-		'@stylistic/ts/semi': 'error',
-		'@stylistic/no-explicit-any': 'warn'
+		'@stylistic/semi': 'error',
+		'@typescript-eslint/no-explicit-any': 'warn'
 	}
 };

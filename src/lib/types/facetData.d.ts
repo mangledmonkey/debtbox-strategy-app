@@ -1,1 +1,0 @@
-export type FacetData = Array<[Address, string[]]>

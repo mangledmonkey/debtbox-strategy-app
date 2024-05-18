@@ -1,10 +1,12 @@
-import type { WalletTotals } from "."
+import type { Address } from "viem";
+import type { WalletTotals } from ".";
 
 export type TokenData = {
     id: number,
     address: Address|string|null,
     icon: string,
     name: string,
+    symbol: string,
     price: number,
     inWallet: number,
     walletValue: number,
@@ -26,9 +28,9 @@ export type TokenData = {
     yearlyWalletRewardsValue: number,
     rewards: number,
     rewardsValue: number,
-}
+};
 
 export type TokensData = {
     tokens: (void|TokenData)[]
     totals: WalletTotals
-}
+};

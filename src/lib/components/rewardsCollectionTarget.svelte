@@ -49,7 +49,7 @@
 </script>
 <article id="collectionTargets">
     <h3>Collection Targets</h3>
-    <div class="flex justify-evenly gap-5 p-4 flex-row">
+    <div class="flex flex-wrap justify-evenly gap-5 p-4 flex-row">
         <div>
             <Card class="flex justify-start gap-4 p-4 w-full h-full">
                 <h4 class="text-2xl text-center mb-2">Rewards Status</h4>
@@ -87,14 +87,20 @@
         <div>
             <Card class="flex justify-normal gap-4 p-4 flex-col w-full h-full">
                 <h4 class="text-2xl text-center mb-2 self-gap-0">Compound Breakdown</h4>
-                <div class="flex flex-row gap-2 justify-evenly">
-                    <div class="flex flex-col text-center">
+                <div class="flex flex-wrap flex-row gap-2 justify-evenly">
+                    <div class="flex flex-col order-1 text-center">
                         <strong>New NFTs</strong>
                         <span class="text-3xl text-green-500 font-bold">
                             {breakdownData.newNfts}
                         </span>
                     </div>
-                    <div class="flex flex-col text-center">
+                    <div class="flex flex-col justify-between order-3 sm:order-2 text-center">
+                        <strong>Avg NFT Return</strong>
+                        <span class="text-2xl">
+                            ${currency(walletTotals.avgDailyNftReturn)}
+                        </span>
+                    </div>
+                    <div class="flex order-2 sm:order-3 flex-col text-center">
                         <strong>Daily Increase</strong>
                         <span class="text-3xl text-green-500 font-bold">
                             ${currency(breakdownData.dailyIncrease)}
@@ -103,14 +109,33 @@
                 </div>
                 <div class="flex flex-col border-secondary-content gap-1 justify-center">
                     <strong>Compound Data</strong>
-                    <div class="flex flex-row justify-between gap-4">
+                    <div class="flex flex-wrap flex-col sm:flex-row sm:justify-between justify-items-stretch gap-4">
                         <div>
-                            <div class="grid grid-cols-2 justify-between"><span>Govt Taxes:</span> <span class="text-right">{currency(breakdownData.govTaxes).format()}</span></div>
-                            <div class="grid grid-cols-2 justify-between"><span>Tx Taxes:</span> <span class="text-right">{currency(breakdownData.txTaxes).format()}</span></div>
+                            <div class="grid grid-cols-2 justify-between">
+                                <span>Govt Taxes:</span>
+                                <span class="text-right">{currency(breakdownData.govTaxes).format()}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 justify-between">
+                                <span>Tx Taxes:</span>
+                                <span class="text-right">
+                                    {currency(breakdownData.txTaxes).format()}
+                                </span>
+                            </div>
                         </div>
                         <div>
-                            <div class="grid grid-cols-2 justify-between"><span>Reserve:</span> <span class="text-right">{currency(breakdownData.personalReserve).format()}</span></div>
-                            <div class="grid grid-cols-2 justify-between"><span>Usable Claim:</span> <span class="text-right font-bold">{currency(breakdownData.usableClaim).format()}</span></div>
+                            <div class="grid grid-cols-2 justify-between">
+                                <span>Reserve:</span>
+                                <span class="text-right">
+                                    {currency(breakdownData.personalReserve).format()}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 justify-between">
+                                <span>Usable Claim:</span>
+                                <span class="text-right font-bold">
+                                    {currency(breakdownData.usableClaim).format()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

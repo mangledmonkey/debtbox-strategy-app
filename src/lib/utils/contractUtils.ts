@@ -23,7 +23,7 @@ export const getContractInformation = async (
 }
 
 export const getCachedContractInformation = async (
-    address: Address,
+    address: Address|string,
     chainId: number
   ): Promise<Contract> => {
     try {

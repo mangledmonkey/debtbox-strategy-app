@@ -16,4 +16,4 @@ export type MulticallData = {
     },
     stakedNfts: number,
     unstakedNfts: number,
-}
+};

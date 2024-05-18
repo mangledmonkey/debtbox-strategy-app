@@ -6,5 +6,5 @@ export type Option = {
         tokens: (void|TokenData)[],
         totals: WalletTotals,
     }
-}
-export type Options = Option[]
+};
+export type Options = Option[];

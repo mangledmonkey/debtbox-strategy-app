@@ -1,2 +1,2 @@
-export * from './tokenData';
+export * from './tokenDataService';
 export * from './walletDataService';

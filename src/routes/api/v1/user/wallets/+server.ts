@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import type { Address } from 'viem';
 import { db } from '$lib/server/db'
-import { walletsTable, type UserWallet } from '$lib/server/db/schema/wallets'
+import { walletsTable, type UserWallet } from '$lib/server/db/schema/wallets';
 import { eq } from 'drizzle-orm';
 // import { drizzle } from 'drizzle-orm/better-sqlite3'
 

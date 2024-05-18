@@ -1,4 +1,4 @@
-import type { Address } from "viem"
+import type { Address } from "viem";
 
 export type DebtBoxProject = {
     type: string,
@@ -26,4 +26,4 @@ export type DebtBoxProject = {
             }
         }
     }
-}
+};

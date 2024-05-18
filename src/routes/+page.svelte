@@ -3,43 +3,51 @@
     import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts'
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
 	import { Tab, Tabs, Card } from 'svelte-ux';
-	import { CompoundsChart, TokensTable, RewardsCollectionTarget, SummaryCard, GoalsWidget } from '$lib/components';
+	import { 
+        CompoundsChart, 
+        GoalsWidget,
+        NftsChart,
+        PurchasePriority,
+        RewardsCollectionTarget,
+        SummaryCard,
+        TokensTable,
+    } from '$lib/components';
 
 	// export let data;
     let value: TokensData;
     const walletData = getWalletDataCtx();
-    const walletTotals = getWalletTotalsCtx();
+    // const walletTotals = getWalletTotalsCtx();
 
 
 	$: console.log('🚀 ~ $signerAddress:', $signerAddress);
 	// $: console.log('🚀 ~ value:', value);
     $: console.log('$walletData:', $walletData)
-    $: console.log('$walletTotals:', $walletTotals)
+    // $: console.log('$walletTotals:', $walletTotals)
 	// $: console.log('🚀 ~ userWallets:', userWallets);
     $: $walletData && $walletData.length > 0 && !value ? value = $walletData[0].value : '';
 </script>
-{#if $loading}
-	<p>Connecting wallet...</p>
-{:else if $connected && $signerAddress}
-    {#if $walletTotals}
-        <SummaryCard walletTotals={$walletTotals} />
-    {/if}
+{#if $connected && $signerAddress}
     {#if $walletData}
         <Tabs
             options={$walletData}
             placement="top"
             bind:value
             classes={{
-                root: 'my-5 overflow-hidden',
+                root: 'overflow-hidden',
                 content: 'border px-4 py-5 rounded-b rounded-tr',
                 tab: { root: 'rounded-t' }
             }}
         >
             <svelte:fragment slot="content" let:value>
-                <RewardsCollectionTarget walletTotals={value.totals} />
-                <CompoundsChart walletTotals={value.totals} />
-                <GoalsWidget />
-                <TokensTable tokenData={value.tokens} />
+                <div class="flex flex-col gap-5">
+                    <SummaryCard walletTotals={value.totals} />
+                    <RewardsCollectionTarget walletTotals={value.totals} />
+                    <CompoundsChart walletTotals={value.totals} />
+                    <GoalsWidget />
+                    <PurchasePriority tokenData={value.tokens} />
+                    <NftsChart tokenData={value.tokens} />
+                    <TokensTable tokenData={value.tokens} />
+                </div>
             </svelte:fragment>
         </Tabs>
     {:else}   

@@ -12,7 +12,8 @@
 		"moduleResolution": "bundler",
 		"module": "ESNext",
 		"target": "ES2021",
-		"types": ["unplugin-icons/types/vue"]
+		"types": ["unplugin-icons/types/vue"],
+		"noImplicitAny": false
 	},
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	// except $lib which is handled by https://kit.svelte.dev/docs/configuration#files

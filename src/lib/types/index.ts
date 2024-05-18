@@ -1,13 +1,19 @@
-export *  from "./abiFactory";
-export * from "./contract";
+export type { Goal, Goals } from '../server/db/schema/goals';
+export type { User } from '../server/db/schema/users';
+export type { UserWallet } from '../server/db/schema/wallets';
+export type { WalletData } from '../server/db/schema/walletData';
+export * from './contract';
 export * from './compoundValues';
-export * from "./debtBoxProject";
-export * from "./debtBoxToken";
+export * from './debtBoxProject';
+export * from './debtBoxToken';
+export * from './debtStakingData';
 export * from './diamond';
-export *  from "./facetData";
+export * from './facetData';
+export * from './goalsData';
 export * from './mulitcallData';
 export * from './rewardsChartData';
-export * from './strategyValues'
-export * from './svelteUx'
-export *  from "./tokensData";
-export * from './walletTotals'
+export * from './strategyValues';
+export * from './svelteUx';
+export * from './tokensData';
+export * from './tokensChartData';
+export * from './walletTotals';

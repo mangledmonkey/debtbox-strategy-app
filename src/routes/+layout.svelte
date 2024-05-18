@@ -13,9 +13,12 @@
 	} from 'svelte-wagmi';
 	import { PUBLIC_WALLETCONNECT_ID, PUBLIC_ALCHEMY_ID } from '$env/static/public';
 	import { injected, walletConnect } from '@wagmi/connectors';
-	import { AppLayout, AppBar, NavItem, Button } from 'svelte-ux';
-	// import LoaderCircle from '~icons/lucide/loader-circle?raw';
+	import { AppLayout, AppBar, Button, Icon, Menu, MenuItem, Toggle } from 'svelte-ux';
+	import LucideChevronDown from '~icons/lucide/chevron-down?raw';
+	import LucideChevronUp from '~icons/lucide/chevron-down?raw';
 	import LucideLoaderCircle from '~icons/lucide/loader-circle?raw';
+	import LucideUnplug from '~icons/lucide/unplug?raw';
+	import LucideWallet from '~icons/lucide/wallet?raw';
 	import { page } from '$app/stores'
 	import { 
 		truncateEthAddress,
@@ -34,7 +37,10 @@
 
 	export let data;
 	console.log('🚀 ~ data.initialState:', data.initialState)
-	
+
+	let walletBtnOptions = {
+		label: "Disconnect",
+	}
 
     setWalletDataCtx(undefined);
     const walletData = getWalletDataCtx();
@@ -58,7 +64,7 @@
 			await walletDataStore.loadData(userWallets, $chainId);
 			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
 			$walletData = $walletDataStore;
-			
+
 			if ($walletDataStore && $walletDataStore.length > 0) {
 				$walletTotals = $walletDataStore[0].value.totals;
 			}
@@ -88,6 +94,8 @@
 		});
 	});
 
+	let isMenuOpen: boolean = false;
+
 	$: console.log('Connected:', $connected);
 	$: console.log('Chain ID:', $chainId);
 	$: console.log('Signer address:', $signerAddress);
@@ -103,18 +111,33 @@
 		<!-- <NavItem text="Home" currentUrl={$page.url} path="/" class="p-5" /> -->
 	<!-- </nav> -->
 
-	<AppBar title="Debt Box Strategy">
+	<AppBar title="Debt Box Strategy" menuIcon={null}>
 		<div slot="actions">
 			<!-- App actions -->
 			{#if $loading}
 				<Button rounded="full" icon={LucideLoaderCircle} iconOnly classes={{icon:"animate-spin"}} loading class="pl-10 pr-10" variant="outline" color="info" />
 			{:else if $connected && $signerAddress}
-				<Button rounded="full" variant="outline" color="primary" on:click={disconnectWagmi}>
-					{truncateEthAddress($signerAddress)}
-					disconnect
-				</Button>
+				<Toggle let:on={open} let:toggle>
+					<Button icon={LucideWallet} rounded="full" variant="outline" color="primary" on:click={toggle}>
+						{truncateEthAddress($signerAddress)}
+						<Icon data={LucideChevronDown} />
+						<Menu {open} on:close={toggle} matchWidth let:close>
+							<div class="p-2">
+								<MenuItem
+									icon={LucideUnplug}
+									classes={{
+										icon: "text-danger pr-2",
+									}}
+									on:click={disconnectWagmi}
+								>
+									Disconnect
+								</MenuItem>
+							</div>
+						</Menu>
+					</Button>
+				</Toggle>
 			{:else}
-				<Button rounded="full" variant="outline" color="secondary" on:click={connectToEthereum}>Connect Wallet</Button>
+				<Button icon={LucideWallet} rounded="full" variant="outline" color="secondary" on:click={connectToEthereum}>Connect Wallet</Button>
 			{/if}
 		</div>
 	</AppBar>
