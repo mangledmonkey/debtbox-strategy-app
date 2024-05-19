@@ -44,8 +44,14 @@
                     <RewardsCollectionTarget walletTotals={value.totals} />
                     <CompoundsChart walletTotals={value.totals} />
                     <GoalsWidget />
-                    <PurchasePriority tokenData={value.tokens} />
-                    <NftsChart tokenData={value.tokens} />
+                    <div class="flex flex-col lg:flex-row w-full md:gap-5">
+                        <div class="basis-1/5 flex justify-stretch">
+                            <PurchasePriority tokenData={value.tokens} />
+                        </div>
+                        <div class="basis-4/5">
+                            <NftsChart tokenData={value.tokens} />
+                        </div>
+                    </div>
                     <TokensTable tokenData={value.tokens} />
                 </div>
             </svelte:fragment>

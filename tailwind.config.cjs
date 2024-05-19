@@ -1,6 +1,5 @@
-const colors = require('tailwindcss/colors');
-
-const svelteUx = require('svelte-ux/plugins/tailwind.cjs');
+import colors from 'tailwindcss/colors';
+import svelteUx from 'svelte-ux/plugins/tailwind';
 
 /** @type {import('tailwindcss').Config}*/
 const config = {
@@ -22,7 +21,7 @@ const config = {
 			flex: {
 				'2': '2 2 0%'
 			}
-		}
+		},
 	},
 	ux: {
 		// See customization docs
