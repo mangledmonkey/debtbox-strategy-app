@@ -8,7 +8,7 @@ function createWalletDataStore() {
     const { subscribe, set } = writable<Options>();
 
     async function loadData(wallets: Address[]|string|null, chainId: number|null|undefined ) {
-        let data: Options = []
+        let data: Options = [];
 
         if (wallets && chainId) {
             data = await getWalletData(wallets, chainId);

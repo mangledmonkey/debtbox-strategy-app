@@ -1,6 +1,8 @@
 import type { 
+    Goal,
     Goals,
     GoalData,
+    GoalsData,
     StrategyValues,
     TokenData,
     TokensChartData,
@@ -8,24 +10,36 @@ import type {
     TokensChartOptions,
     WalletTotals,
     StackedTokensChartData
-} from '$lib/types'
+} from '$lib/types';
 
-export function calculateGoals(goals: Goals, walletTotals: WalletTotals, strategyValues: StrategyValues) {
-    const goalsData: GoalData[] = []
+export function calculateGoals(goals: Goals, walletTotals: WalletTotals|undefined, strategyValues: StrategyValues): GoalsData {
+    const goalsData: GoalsData = [];
 
-    for (let i = 0; i < goals.length; i += 1) {
-        const goal = goals[i];
-
-        const goalData: GoalData = goal;
-        goalData.weeklyReturns = goal.target * 7;
-        goalData.monthlyReturns = goal.target * 30;
-        goalData.yearlyReturns = goal.target * 365;
-        goalData.totalNfts = Math.floor(goal.target / walletTotals.avgDailyNftReturn);
-        goalData.totalCost = (goal.target / walletTotals.avgDailyNftReturn) * strategyValues.nftCost;
-        goalData.nftsRemaining = goalData.totalNfts - walletTotals.stakedNfts;
-        goalData.expectedCost = goalData.nftsRemaining * strategyValues.nftCost;
-
-        goalsData.push(goalData);
+    if (walletTotals && strategyValues) {
+        for (let i = 0; i < goals.length; i += 1) {
+            const goal: Goal = goals[i];
+    
+            const weeklyReturns = goal.target * 7;
+            const monthlyReturns = goal.target * 30;
+            const yearlyReturns = goal.target * 365;
+            const totalNfts = Math.floor(goal.target / walletTotals.avgDailyNftReturn);
+            const totalCost = (goal.target / walletTotals.avgDailyNftReturn) * strategyValues.nftCost;
+            const nftsRemaining = totalNfts - walletTotals.stakedNfts;
+            const expectedCost = nftsRemaining * strategyValues.nftCost;
+            
+            const goalData: GoalData = {
+                ...goal,
+                weeklyReturns,
+                monthlyReturns,
+                yearlyReturns,
+                totalNfts,
+                totalCost,
+                nftsRemaining,
+                expectedCost,
+            };
+    
+            goalsData.push(goalData);
+        }
     }
 
     return goalsData;
@@ -37,15 +51,15 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
     const walletChartOptions: TokensChartOption = {
         label: 'In Wallet',
         value: [],
-    }
+    };
     const perNftChartOptions: TokensChartOption = {
         label: 'Per Wallet NFT',
         value: [],
-    }
+    };
     const allNftsChartOptions: TokensChartOption = {
         label: 'All Projects NFTs',
         value: [],
-    }
+    };
 
     for (let i = 0; i < tokenData.length; i += 1) {
         const token: TokenData = tokenData[i];
@@ -73,7 +87,7 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
             weeklyRoi: walletCount > 0 ? token.weeklyWalletRewardsValue / (strategyValues.nftCost * walletCount) : 0,
             monthlyRoi: walletCount > 0 ? token.monthlyWalletRewardsValue / (strategyValues.nftCost * walletCount) : 0,
             annualizedRoi: walletCount > 0 ? token.yearlyWalletRewardsValue / (strategyValues.nftCost * walletCount) : 0,
-        }
+        };
 
         for (let i = 0; i < walletCount; i += 1) {
             const start = i * token.dailyRewardsValue;
@@ -89,7 +103,7 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
                     start,
                     end
                 ]
-            }
+            };
 
             walletChartOptions.value.push(stackedWalletChartData);
         }
@@ -119,7 +133,7 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
                     0,
                     token.dailyRewardsValue
                 ] 
-            }
+            };
     
             perNftChartOptions.value.push(perNftChartData);
         }
@@ -147,7 +161,7 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
                 0,
                 token.dailyRewardsValue
             ] 
-        }
+        };
 
         allNftsChartOptions.value.push(allNftsChartData);
     }
@@ -156,7 +170,7 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
         walletChartOptions,
         perNftChartOptions,
         allNftsChartOptions
-    )
+    );
 
     return chartOptions;
 }

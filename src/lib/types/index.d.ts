@@ -1,9 +1,11 @@
+/// <reference types="svelte" />
 export type { Goal, Goals } from '../server/db/schema/goals';
 export type { User } from '../server/db/schema/users';
 export type { UserWallet } from '../server/db/schema/wallets';
 export type { WalletData } from '../server/db/schema/walletData';
 export * from './contract';
 export * from './compoundValues';
+export * from './breakdownData';
 export * from './debtBoxProject';
 export * from './debtBoxToken';
 export * from './debtStakingData';

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { GoalData, StrategyValuesContext, WalletTotalsContext } from '$lib/types';
+    import type { GoalData, GoalsData, StrategyValuesContext, WalletTotalsContext } from '$lib/types';
     import type { Goals } from '$lib/server/db/schema/goals'
     import { useQuery, useMutation, useQueryClient } from '@sveltestack/svelte-query'
     import { getWalletTotalsCtx, getStrategyValuesCtx } from '$lib/contexts';
@@ -11,7 +11,7 @@
     import LucideEdit3 from '~icons/lucide/edit-2?raw';
     import { calculateGoals } from '$lib/utils';
 
-    let addingGoal: boolean = false;
+    let addingGoal: boolean = $state(false);
 
     const strategyValues: StrategyValuesContext = getStrategyValuesCtx();
     const walletTotals: WalletTotalsContext = getWalletTotalsCtx();
@@ -40,9 +40,9 @@
         console.log('Saving a goal!:', addingGoal) 
     }
 
-    let goalsData: GoalData[] = []
-    $: if ($walletTotals && $strategyValues) goalsData = calculateGoals(goals, $walletTotals, $strategyValues)
-    $: console.log('🚀 ~ goalsData:', goalsData)
+    const goalsData: GoalsData = $derived(calculateGoals(goals, $walletTotals, $strategyValues))
+    $inspect('🚀 ~ goalsData:', goalsData)
+
 </script>
 <section class="goals-widget my-2">
     <Card class="p-2 overflow-hidden">

@@ -4,18 +4,21 @@ import type {
     CompoundValues,
     StrategyValues,
     WalletTotals
-} from "$lib/types"
+} from "$lib/types";
 
-export function getCompoundValues(walletTotals: WalletTotals, strategyValues: StrategyValues): CompoundValues {
-    const compoundValues: CompoundValues = []
+export function getCompoundValues(
+    walletTotals: WalletTotals,
+    strategyValues: StrategyValues
+): CompoundValues {
+    const compoundValues: CompoundValues = [];
 
     for (let i = 0; i < strategyValues.projectionMonths; i += 1) {
-        const prevMonth = compoundValues[i-1] || null
+        const prevMonth = compoundValues[i-1] || null;
         const id = i;
         const date: Date = new Date();
         date.setMonth(date.getMonth() + i);
 
-        const dailyRewardsValue: number = prevMonth 
+        const dailyRewardsValue: number = prevMonth
             ? prevMonth.dailyRewardsValue + prevMonth.dailyRewardsIncrease
             : walletTotals.dailyReturns;
         const weeklyRewardsValue: number = dailyRewardsValue * 7;
@@ -46,15 +49,15 @@ export function getCompoundValues(walletTotals: WalletTotals, strategyValues: St
         // const stakedTokens: number = 0; // TODO: requires DEBT token staking quantity
         // const stakedTokensValue: number = 0; // TODO: requires DEBT token staking quantity
         const stakedNftsValue: number = nftsEnd * strategyValues.nftCost;
-        const totalCost: number = stakedNftsValue // TODO: Add staked tokens value
-        const walletEndValue: number = walletBalance - txFees - (nftsNew * strategyValues.nftCost)
-        const dailyRewardsIncrease: number = nftsNew * (walletTotals.dailyReturns / walletTotals.stakedNfts)
+        const totalCost: number = stakedNftsValue; // TODO: Add staked tokens value
+        const walletEndValue: number = walletBalance - txFees - (nftsNew * strategyValues.nftCost);
+        const dailyRewardsIncrease: number = nftsNew * (walletTotals.dailyReturns / walletTotals.stakedNfts);
         const dailyPercentIncrease: number = dailyRewardsIncrease / dailyRewardsValue;
         const roiDaily: number = dailyRewardsValue / totalCost;
         const roiWeekly: number = weeklyRewardsValue / totalCost;
         const roiMonthly: number = monthlyRewardsValue / totalCost;
         const roiAnnualized: number = annualizedRewardsValue / totalCost;
-        const yearlyRewardsEarned: number = prevMonth
+        const yearlyRewardsEarned: number = id % 12 > 0
             ? prevMonth.yearlyRewardsEarned + monthlyRewardsValue
             : monthlyRewardsValue;
 
@@ -89,11 +92,11 @@ export function getCompoundValues(walletTotals: WalletTotals, strategyValues: St
             roiMonthly,
             roiAnnualized,
             yearlyRewardsEarned
-        }
+        };
 
-        compoundValues.push(values)
+        compoundValues.push(values);
     }
 
     // console.log('🚀 ~ getStrategyValues ~ compoundValues:', compoundValues)
-    return compoundValues
+    return compoundValues;
 }

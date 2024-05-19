@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.pcss';
 	import type { Address } from 'viem';
-	import { onMount } from 'svelte';
 	import { defaultConfig, WC} from 'svelte-wagmi';
 	import { bsc } from '@wagmi/core/chains';
 	import { 
@@ -15,11 +14,10 @@
 	import { injected, walletConnect } from '@wagmi/connectors';
 	import { AppLayout, AppBar, Button, Icon, Menu, MenuItem, Toggle } from 'svelte-ux';
 	import LucideChevronDown from '~icons/lucide/chevron-down?raw';
-	import LucideChevronUp from '~icons/lucide/chevron-down?raw';
+	// import LucideChevronUp from '~icons/lucide/chevron-down?raw';
 	import LucideLoaderCircle from '~icons/lucide/loader-circle?raw';
 	import LucideUnplug from '~icons/lucide/unplug?raw';
 	import LucideWallet from '~icons/lucide/wallet?raw';
-	import { page } from '$app/stores'
 	import { 
 		truncateEthAddress,
 		getUserWallets,
@@ -35,12 +33,8 @@
 	import { defaultValues } from '$lib/data/defaultCompoundValues';
 	import { walletDataStore } from '$lib/stores';
 
-	export let data;
+	let { data } = $props();
 	console.log('🚀 ~ data.initialState:', data.initialState)
-
-	let walletBtnOptions = {
-		label: "Disconnect",
-	}
 
     setWalletDataCtx(undefined);
     const walletData = getWalletDataCtx();
@@ -49,7 +43,9 @@
 
 	setStrategyValuesCtx(defaultValues);
 
-	// Get user's wallets if available
+	let tableDataLoaded = $state(false);
+
+		// Get user's wallets if available
 	async function getTableData(
 		signerAddress: Address | string | null,
 		chainId: number | null | undefined
@@ -60,8 +56,7 @@
 			console.log('🚀 ~ getTableData ~ userWallets:', userWallets);
 			
 			// Set the store
-			// $walletData = await getWalletData(userWallets, $chainId);
-			await walletDataStore.loadData(userWallets, $chainId);
+			await walletDataStore.loadData(userWallets, chainId);
 			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
 			$walletData = $walletDataStore;
 
@@ -76,7 +71,7 @@
 		await WC();
 	}
 
-	onMount(async () => {
+	async function initWeb3Connect() {
 		const erckit = defaultConfig({
 			chains: [bsc],
 			appName: 'D.E.B.T. Box Strategy',
@@ -92,15 +87,23 @@
         .then(() => {
 			// if ($signerAddress) getTableData($signerAddress, $chainId);
 		});
-	});
+	};
 
-	let isMenuOpen: boolean = false;
+	$effect(() => {
+		if (!$connected) {
+			initWeb3Connect()
+		}
 
-	$: console.log('Connected:', $connected);
-	$: console.log('Chain ID:', $chainId);
-	$: console.log('Signer address:', $signerAddress);
-	$: console.log('Loading:', $loading);
-	$: $signerAddress, getTableData($signerAddress, $chainId)
+		if (!tableDataLoaded && $signerAddress) {
+			getTableData($signerAddress, $chainId);
+		}
+
+	})
+
+	$inspect('Connected:', $connected);
+	$inspect('Chain ID:', $chainId);
+	$inspect('Signer address:', $signerAddress);
+	$inspect('Loading:', $loading);
 	// $: console.log('$walletData:', $walletData);
 </script>
 

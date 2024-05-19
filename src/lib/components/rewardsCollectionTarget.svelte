@@ -1,51 +1,25 @@
 <script lang="ts">
-    import currency from 'currency.js'
-	import { Badge, Card, Field } from "svelte-ux";
     import type { WalletTotals } from '$lib/types';
+    import currency from 'currency.js'
 	import { getStrategyValuesCtx } from '$lib/contexts';
+    import { getCountdown, getStatusColor, updateCompoundBreakdown } from '$lib/utils';
+	import { Badge, Card } from "svelte-ux";
 
-    export let walletTotals: WalletTotals;
+    interface Props {
+        walletTotals: WalletTotals,
+    }
+
+    let { walletTotals }: Props = $props();
     const strategyValues = getStrategyValuesCtx();
-
-    function getStatusColor(time: number) {
-        if (time <= 0) {
-            return 'green-500';
-        } else if (time > 0 && time <= 2) {
-            return 'blue-500';
-        } else if (time > 2 && time <= 5) {
-            return 'yellow-500';
-        }
-
-        return 'red-500';
-    }
-  
-    let breakdownData = {
-        newNfts: 0,
-        dailyIncrease: 0,
-        govTaxes: 0,
-        txTaxes: 0,
-        personalReserve: 0,
-        usableClaim: 0,
-    }
-
-    // Calculations
-    function updateCompoundBreakdown(walletTotals: WalletTotals) {
-        breakdownData.govTaxes = walletTotals.rewardsBalance * ($strategyValues.govTaxes/100);
-        breakdownData.txTaxes = walletTotals.rewardsBalance * ($strategyValues.txTaxes/100);
-        breakdownData.personalReserve = walletTotals.rewardsBalance * ($strategyValues.personalReserve/100);
-        breakdownData.usableClaim = walletTotals.rewardsBalance - (breakdownData.govTaxes + breakdownData.txTaxes + breakdownData.personalReserve);
-        breakdownData.newNfts = Math.floor(breakdownData.usableClaim / $strategyValues.nftCost);
-        breakdownData.dailyIncrease = breakdownData.newNfts * walletTotals.avgDailyNftReturn || 0;
-    }
-
-    let collectionTarget: number = 0;
-    let countdown: number = 0;
-    let statusColor: string;
     
-    $: collectionTarget = walletTotals.dailyReturns * 30;
-    $: countdown = Number(currency((collectionTarget - walletTotals.rewardsBalance) / walletTotals.dailyReturns, { precision: 1 })) || 0;
-    $: statusColor = getStatusColor(countdown);
-    $: walletTotals, updateCompoundBreakdown(walletTotals);
+    let countdown = $state(0)
+    const collectionTarget: number = $derived(walletTotals.dailyReturns * 30);
+    const statusColor: string = $derived(getStatusColor(countdown));
+    const breakdownData = $derived(updateCompoundBreakdown(walletTotals, $strategyValues));
+
+    $effect(() => {
+        countdown = getCountdown(collectionTarget, walletTotals);
+    })
 </script>
 <article id="collectionTargets">
     <h3>Collection Targets</h3>

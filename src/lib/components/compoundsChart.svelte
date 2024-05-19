@@ -1,30 +1,34 @@
 <script lang="ts">
 	import type {
+	CompoundValue,
 	    CompoundValues,
         StrategyValuesContext,
 		WalletTotals
     } from "$lib/types";
-	import { getStrategyValuesCtx } from "$lib/contexts";
-	import { getCompoundValues } from "$lib/utils";
+    import currency from "currency.js";
     import { scaleTime } from 'd3-scale';
     import { format } from 'date-fns';
+	import { getStrategyValuesCtx } from "$lib/contexts";
+	import { getCompoundValues } from "$lib/utils";
     import { Chart, Svg, Axis, Spline, Highlight, Tooltip, TooltipItem } from 'layerchart';
     import { Collapse, formatDate, Paginate, Pagination, PeriodType, Table } from "svelte-ux";
-    import currency from "currency.js";
+
+    interface Props {
+        walletTotals: WalletTotals,
+    }
     
     // export let tokenData: TokenData[];
-    export let walletTotals: WalletTotals;
+    let { walletTotals }: Props = $props();
     const strategyValues: StrategyValuesContext = getStrategyValuesCtx();
-    console.log('🚀 ~ strategyValues:', $strategyValues)
+    // console.log('🚀 ~ strategyValues:', $strategyValues)
 
-    let compoundValues: CompoundValues|undefined;
+    const compoundValues: CompoundValues|undefined = $derived(getCompoundValues(walletTotals, $strategyValues));
 
-    $: compoundValues = getCompoundValues(walletTotals, $strategyValues);
-    $: console.log('🚀 ~ compoundValues:', compoundValues)   
+    // $inspect('🚀 ~ compoundValues:', compoundValues)   
 </script>
 
 <article id="compoundStrategyChart">
-    <h3>Compound Strategy Chart</h3>
+    <h3>Compounds Chart</h3>
     <div class="h-[300px] p-4 border rounded mt-4">
         <Chart
             data={compoundValues}
@@ -39,15 +43,15 @@
             <Svg>
                 <Axis placement="left" grid rule />
                 <Axis
-                placement="bottom"
-                format={(d) => formatDate(d, PeriodType.MonthYear, { variant: "short" })}
-                grid
-                rule
+                    placement="bottom"
+                    format={(d: Date) => formatDate(d, PeriodType.MonthYear, { variant: "short" })}
+                    grid
+                    rule
                 />
                 <Spline yScale="dailyRewardsValue" class="stroke-2 stroke-primary" />
                 <Highlight points lines />
             </Svg>
-            <Tooltip header={(data) => format(data.date, "MMMM do, yyyy")} let:data>
+            <Tooltip header={(data: CompoundValue) => format(data.date, "MMMM do, yyyy")} let:data>
                 <TooltipItem 
                     label="daily rewards" 
                     value={currency(data.dailyRewardsValue).format()} 
@@ -89,8 +93,8 @@
                             header: "Months",
                             name: "id",
                             align: "center",
-                            format: (id) => {
-                                return id + 1
+                            format: (id: number): string => {
+                                return (id + 1).toString()
                             },
                         },
                         {
@@ -103,7 +107,7 @@
                             style: {
                                 th: "width: 100px;"
                             },
-                            format: (d) => {
+                            format: (d: Date) => {
                                 return formatDate(d, PeriodType.MonthYear, { variant: "custom" });
                             },
                         },
@@ -255,7 +259,7 @@
                 />
                     <Pagination 
                         {pagination}
-                        perPageOptions={[6,12,18,24,36,48,60,100]}
+                        perPageOptions={[6,12,18,24,36]}
                         show={['perPage', 'pagination', 'prevPage', 'nextPage']}
                         classes={{ root: 'border-t py-1 mt-2', perPage: 'flex-1 text-right', pagination: 'px-8' }}>
                     </Pagination>

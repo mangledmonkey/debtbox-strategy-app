@@ -1,43 +1,23 @@
 <script lang="ts">
-    import currency from 'currency.js';
     import type { 
         TokenData 
     } from '$lib/types';
+    import currency from 'currency.js';
+    import { getRewardsTotals } from '$lib/utils';
     import { Table} from 'svelte-ux';
 
-    export let tokenData: TokenData[];
-    console.log('🚀 ~ tokenData:', tokenData)
-
-    function sumRewardsValues(tokens: TokenData[], property: keyof TokenData) {
-        const values = tokens.map(token => {
-            return token[property]
-        })
-        
-        return values.reduce((total, val) => total + val)
-    }
-    
-    function getRewardsTotals(tokens: TokenData[]) {
-        let totals = {
-            inWallet: sumRewardsValues(tokens, 'inWallet'),
-            walletValue: sumRewardsValues(tokens, 'walletValue'),
-            rewardsValue: sumRewardsValues(tokens, 'rewardsValue'),
-            stakedNfts: sumRewardsValues(tokens, 'stakedNfts'),
-            dailyRewardsValue: sumRewardsValues(tokens, 'dailyRewardsValue'),
-            dailyWalletRewardsValue: sumRewardsValues(tokens, 'dailyWalletRewardsValue'),
-            weeklyWalletRewardsValue: sumRewardsValues(tokens, 'weeklyWalletRewardsValue'),
-            monthlyWalletRewardsValue: sumRewardsValues(tokens, 'monthlyWalletRewardsValue'),
-            yearlyWalletRewardsValue: sumRewardsValues(tokens, 'yearlyWalletRewardsValue'),
-        }
-
-        return totals
+    interface Props {
+        tokenData: TokenData[],
     }
 
-    let rewardsTotals
+    let { tokenData }: Props = $props();
+    // console.log('🚀 ~ tokenData:', tokenData)
+
+    const rewardsTotals = $derived(getRewardsTotals(tokenData))
     const tableClasses = {
         table: 'mt-5 table-auto overflow-x-auto border-solid border-2',
         th: 'min-w-24 text-center align-bottom p-2 border-solid border-b-2',
     }
-    $: rewardsTotals = getRewardsTotals(tokenData)
 </script>
 
 <article id="projectTokensTable">

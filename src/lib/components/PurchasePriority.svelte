@@ -1,23 +1,16 @@
 <script lang="ts">
 	import type { TokenData } from "$lib/types";
 	import currency from "currency.js";
+    import { sortTokensByDailyRewardsValue } from "$lib/utils";
 	import { Card } from "svelte-ux";
 
-    export let tokenData: TokenData[]
-
-    function sortTokensByDailyRewardsValue(tokenData: TokenData[]): TokenData[] {
-        const sortedTokenData: TokenData[] = [...tokenData]
-        return sortedTokenData.sort((a, b) => {
-            const keyA = a.dailyRewardsValue;
-            const keyB = b.dailyRewardsValue;
-            if (keyA > keyB) return -1;
-            if (keyA < keyB) return 1;
-            return 0;
-        }) 
+    interface Props {
+        tokenData: TokenData[],
     }
 
-    let sortedTokenData: TokenData[];
-    $: sortedTokenData = sortTokensByDailyRewardsValue(tokenData);
+    let { tokenData }: Props = $props();
+    
+    const sortedTokenData = $state(sortTokensByDailyRewardsValue(tokenData));
 </script>
 <article id="purchasePriority">
     <h3>Purchase Priority</h3>

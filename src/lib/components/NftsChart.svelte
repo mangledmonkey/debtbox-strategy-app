@@ -3,7 +3,7 @@
         TokensChartData, 
         TokensChartOptions, 
         TokenData,
-		StrategyValuesContext
+		StrategyValuesContext,
     } from '$lib/types';
     import { Tabs } from 'svelte-ux';
     import { 
@@ -11,7 +11,6 @@
         Bars,
         Chart,
         Highlight,
-        Labels,
         Rule,
         Svg,
         Text,
@@ -24,19 +23,19 @@
     import { getTokensChartData } from '$lib/utils'
 	import { extent, mean } from 'd3-array';
 
-    export let tokenData: TokenData[];
-    const strategyValues: StrategyValuesContext = getStrategyValuesCtx();
-    let chartData: TokensChartOptions = []
-    let value: TokensChartData[]; 
-
-    function assignChartData() {
-        chartData = getTokensChartData(tokenData, $strategyValues);
-        value = chartData[0].value
+    interface Props {
+        tokenData: TokenData[],
     }
-    
-    // $: console.log('🚀 ~ tokenData:', tokenData)
-    // $: console.log('🚀 ~ chartData:', chartData)
-    $: tokenData, assignChartData();
+
+    let { tokenData }: Props = $props();
+    const strategyValues: StrategyValuesContext = getStrategyValuesCtx();
+
+    const chartData: TokensChartOptions = $derived(getTokensChartData(tokenData, $strategyValues))
+    let value: TokensChartData[] = $state([]); 
+
+    $effect(() => {
+        value = chartData[0].value
+    })
 </script>
 <article id="compoundStrategyChart">
     <h3>NFTs Chart</h3>
@@ -60,14 +59,14 @@
                     y="values"
                     yDomain={extent(value.flatMap((d) => d.values))}
                     yNice={4}
-                    r={(d) => d.keys[1]}
+                    r={(d: TokenData[]) => d.keys[1]}
                     rScale={scaleOrdinal()}
                     padding={{ left: 16, bottom: 24 }}
                     tooltip={{ mode: "band"}}
                     let:width
                     let:yScale
                 >
-                    {@const avg = mean(value, (d) => d.dailyRewardsValue)}
+                    {@const avg: number = mean(value, (d: TokenData) => d.dailyRewardsValue) || 0}
                     <Svg>
                         <Axis
                             placement="left" 
@@ -83,7 +82,6 @@
                             strokeWidth={1}
                             class="fill-primary"
                         />
-                        <!-- <Labels placement="inside" format="integer" groupBy={data => data.dailyRewardsValue} /> -->
                         <Rule
                             y={avg}
                             class="stroke-2 stroke-secondary [stroke-dasharray:4] [stroke-linecap:round] "
