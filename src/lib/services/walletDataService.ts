@@ -1,44 +1,45 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import type { DebtStakingData, Option, Options, TokenData, WalletTotals } from '$lib/types';
+import type { DebtStakingData, Option, Options, TokenData, Wallets } from '$lib/types';
 import type { Address } from 'viem';
 import { truncateEthAddress, getDebtBoxData, getWalletTotals } from '$lib/utils';
-import { getDebtStakingData, getTokensData } from './tokenDataService'
+import { getTokensData } from './tokenDataService';
 
-export async function getWalletData(wallets: Address[]|string|null, chainId: number|null|undefined ): Promise<Options>  {
-    console.log("🚀 ~ getTokenData ~ start")
+export async function getWalletData(wallets: Wallets, chainId: number|null|undefined ): Promise<Options>  {
+    console.log("🚀 ~ getTokenData ~ start");
+    const addresses: (Address|string)[] = wallets.map((wallet => {
+        return wallet.address;
+    }));
 
 	const debtBoxData = await getDebtBoxData();
 
-	const walletData: Options = []
-	const debtStakingData: Options = []
+	const walletData: Options = [];
 
-    if (wallets && chainId) {
+    if (addresses && chainId) {
         // Get the user's additional wallets
         for(let i = 0; i < wallets.length; i += 1) {
-            const walletAddress: Address|string = wallets[i];
+            const walletAddress: Address|string = addresses[i];
             
             try {
-                const truncatedAddress = truncateEthAddress(walletAddress)
+                const truncatedAddress = truncateEthAddress(walletAddress);
 
                 const tokensData = await getTokensData(debtBoxData.projects, debtBoxData.tokens, walletAddress, chainId);
                 
                 const tableData: Option = {
                     label: truncatedAddress,
                     value: tokensData,
-                }
+                };
                 
-                walletData.push(tableData)
+                walletData.push(tableData);
                 
             } catch (error){
-                console.error("🚀 ~ walletDataService ~ error:", error)
+                console.error("🚀 ~ walletDataService ~ error:", error);
             }
-            }
+        }
         
 
         // Create and insert summary table
         if (wallets.length > 1) {
             const summaryTable: TokenData[] = [];
-            let debtStakingData: DebtStakingData = {
+            const debtStakingData: DebtStakingData = {
                 baseStakeUnits: 0,
                 additionalStakeUnitsForVbox: 0,
                 activeTokens: 0,
@@ -46,7 +47,7 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
                 maxStakeable: 0,
                 stakedTokens: 0,
                 stakedVbox: 0,
-            }
+            };
 
             // Loop each table data object in the wallet data
             for (let i = 0; i < walletData.length; i += 1) {
@@ -73,7 +74,7 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
                         // console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
         
                         if (cellIndex === -1) {
-                            summaryTable.push(walletCell)
+                            summaryTable.push(walletCell);
                         } else {
                             // console.log("🚀 ~ /api/v1/user/tokens:POST ~ createSummaryTable ~ maths ~ cellIndex:", cellIndex, 'value:', cellIndex > -1 ? summaryTable[cellIndex] : '..')
                             summaryTable[cellIndex].inWallet += walletCell.inWallet; 
@@ -88,8 +89,8 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
                 }
             }
 
-            console.log('🚀 ~ getWalletData ~ summary ~ debtStakingData:', debtStakingData)
-            const summaryTotals = getWalletTotals(summaryTable, debtStakingData)
+            console.log('🚀 ~ getWalletData ~ summary ~ debtStakingData:', debtStakingData);
+            const summaryTotals = getWalletTotals(summaryTable, debtStakingData);
 
             // summaryTotals.avgDailyNftReturn = summaryTotals.dailyReturns / summaryTotals.stakedNfts;
             
@@ -99,12 +100,12 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
                     tokens: summaryTable,
                     totals: summaryTotals,
                 },
-            }
+            };
 
             walletData.splice(0, 0, summaryWalletData);
         }
 
-        console.log("🚀 ~ walletDataService ~ walletData:", walletData)
+        console.log("🚀 ~ walletDataService ~ walletData:", walletData);
     }
 
     return walletData;
