@@ -200,7 +200,7 @@
 							onclick={toggle}
 						>
 							{truncateEthAddress($signerAddress)}
-							<Icon data={LucideChevronDown} />
+							<Icon svg={LucideChevronDown.toString()} />
 							<Menu {open} on:close={toggle} matchWidth let:close>
 								<div class="p-2">
 									<MenuItem
@@ -223,7 +223,7 @@
 		</div>
 	</AppBar>
 
-	<main class="h-full overflow-y-scroll">
+	<main class="min-h-full overflow-y-scroll">
 		{@render children()}
 		<Footer />
 	</main>
