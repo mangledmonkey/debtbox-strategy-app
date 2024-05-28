@@ -11,7 +11,7 @@ export const walletsTable = sqliteTable('wallets', {
   }
 );
 
-export type UserWallet = typeof walletsTable.$inferSelect
+export type UserWallet = typeof walletsTable.$inferSelect;
 
 export const walletsRelations = relations(walletsTable, ({ one }) => ({
     user: one(usersTable, {

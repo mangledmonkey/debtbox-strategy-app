@@ -1,3 +1,5 @@
+import type { Address } from "viem";
+
 type Params = {
     nPrefix?: number;
     nSuffix?: number;
@@ -16,8 +18,9 @@ type Params = {
     parenthesis: ')',
   };
   
-  export function truncateEthAddress(address: string, { nPrefix, nSuffix, separator }: Params = {}) {
-    const match = address.match(/^(0x[a-zA-Z0-9])[a-zA-Z0-9]+([a-zA-Z0-9])$/);
+  export function truncateEthAddress(address: Address|string, { nPrefix, nSuffix, separator }: Params = {}) {
+    const addressString = address.toString();
+    const match = addressString.match(/^(0x[a-zA-Z0-9])[a-zA-Z0-9]+([a-zA-Z0-9])$/);
     const nTotalIsLongerThanAddress = (nPrefix || 0) + (nSuffix || 0) > address.length;
   
     return match && !nTotalIsLongerThanAddress

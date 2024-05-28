@@ -6,7 +6,7 @@
 </script>
 
 <section id="goalsWidget" class="w-full">
-    <h3>Goals</h3>
+    <h3>Daily Rewards Goals</h3>
     <QueryClientProvider client={queryClient}>
         <Goals />
     </QueryClientProvider>

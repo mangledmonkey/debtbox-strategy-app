@@ -1,4 +1,5 @@
-import type { 
+import type {
+    CompoundValues,
     Goal,
     Goals,
     GoalData,
@@ -12,10 +13,10 @@ import type {
     StackedTokensChartData
 } from '$lib/types';
 
-export function calculateGoals(goals: Goals, walletTotals: WalletTotals|undefined, strategyValues: StrategyValues): GoalsData {
+export function calculateGoals(goals: Goals|undefined, walletTotals: WalletTotals|undefined, strategyValues: StrategyValues): GoalsData {
     const goalsData: GoalsData = [];
 
-    if (walletTotals && strategyValues) {
+    if (goals && walletTotals && strategyValues) {
         for (let i = 0; i < goals.length; i += 1) {
             const goal: Goal = goals[i];
     
@@ -173,4 +174,33 @@ export function getTokensChartData(tokenData: TokenData[], strategyValues: Strat
     );
 
     return chartOptions;
+}
+
+export function getGoalDates(
+    goals: Goals|undefined,
+    compoundValues: CompoundValues|undefined
+): {target: number, date:Date}[] {
+    const goalDates: {target: number, date: Date}[] = [];
+
+    if (goals && compoundValues)
+    for (let g = 0; g < goals.length; g += 1) {
+        const target = goals[g].target;
+        let matched: boolean = false;
+
+        for (let i = 0; i < compoundValues.length; i += 1) {
+            const values = compoundValues[i];
+
+            if (!matched && values.dailyRewardsValue >= target) {
+                const goal = {
+                    target,
+                    date: values.date,
+                };
+
+                goalDates.push(goal);
+                matched = true;
+            }
+        }
+    }
+
+    return goalDates;
 }
