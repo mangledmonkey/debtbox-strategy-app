@@ -157,15 +157,11 @@
 	<title>DEBT Rewards Strategy</title>
 </svelte:head>
 
-{#snippet nav()}
-	
-{/snippet}
-
 <AppLayout areas="'header header' 'aside main'" navWidth={0}>
-	{#if $connected}
+	<!-- {#if $connected} -->
 <!-- <AppLayout areas="'header header' 'aside main'" navWidth={100}> -->
 	
-	{/if}
+	<!-- {/if} -->
 
 	<AppBar class="bg-surface-100" menuIcon={null}>
 		<a href="/" class="flex flex-row items-center text-white active:no-underline hover:no-underline">
