@@ -84,6 +84,7 @@
     "drizzle-orm": "^0.30.9",
     "i18next": "^23.11.3",
     "layerchart": "^0.36.5",
+    "multicoin-address-validator": "^0.5.18",
     "svelte-ux": "^0.63.4",
     "svelte-wagmi": "^1.0.5",
     "tailwind-merge": "^2.2.2",

@@ -1,35 +1,26 @@
 <script lang="ts">
-	import type { TokensData } from '$lib/types';
-	import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts';
 	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
-	import { Tab, Tabs, Button, Card } from 'svelte-ux';
+	import { goto } from '$app/navigation';
 	import {
-		CompoundsChart,
-		GoalsWidget,
 		Hero,
 		Icons,
-		NftsChart,
-		PurchasePriority,
-		RewardsCollectionTarget,
-		SummaryCard,
-		TokensTable
 	} from '$lib/components';
 
-	let { connectToEthereum } = $props();
+	// let { connectToEthereum } = $props();
 
 	// export let data;
-	let value: TokensData | undefined = $state();
-	const walletData = getWalletDataCtx();
+	// let value: TokensData | undefined = $state();
+	// const walletData = getWalletDataCtx();
 	// const walletTotals = getWalletTotalsCtx();
 
 	$inspect('🚀 ~ $signerAddress:', $signerAddress);
 	// $: console.log('🚀 ~ value:', value);
-	$inspect('$walletData:', $walletData);
+	// $inspect('$walletData:', $walletData);
 	// $: console.log('$walletTotals:', $walletTotals)
 	// $: console.log('🚀 ~ userWallets:', userWallets);
-	$effect(() => {
-		if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
-	});
+	// $effect(() => {
+	// 	if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
+	// });
 </script>
 
 {#if !$connected && !$signerAddress}
@@ -67,7 +58,7 @@
 		</section>
 
 		<!-- How It Works Section -->
-		<section class="my-10 max-w-4xl p-5 text-center sm:w-4/5">
+		<section class="my-10 max-w-4xl p-5 text-center sm:w-4/5 ">
 			<h2>How It Works</h2>
 			<div class="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
 				<article>
@@ -79,11 +70,10 @@
 					</p>
 				</article>
 				<article>
-					<h3 class="self-start">2. Monitor Your NFTs</h3>
+					<h3 class="self-start">2. Monitor Your NFT Rewards</h3>
 					<Icons name="importNfts" class="m-auto" />
 					<p class="mt-2">
-						Automatically scan your NFTs from multiple wallets and summarizes their rewards in one
-						place.
+						Automatically scan your NFTs from multiple wallets and summarizes their rewards in one place.
 					</p>
 				</article>
 				<article>
@@ -117,33 +107,6 @@
 			</p>
 		</section>
 	</div>
-{:else if $walletData && value}
-	<Tabs
-		options={$walletData}
-		placement="top"
-		bind:value
-		classes={{
-			root: 'overflow-hidden',
-			content: 'border px-4 py-5 rounded-b rounded-tr',
-			tab: { root: 'rounded-t' }
-		}}
-	>
-		<svelte:fragment slot="content" let:value>
-			<div class="flex flex-col gap-5">
-				<SummaryCard walletTotals={value.totals} />
-				<RewardsCollectionTarget walletTotals={value.totals} />
-				<CompoundsChart walletTotals={value.totals} />
-				<GoalsWidget />
-				<div class="flex w-full flex-col md:gap-5 lg:flex-row">
-					<div class="flex basis-1/5 justify-stretch">
-						<PurchasePriority tokenData={value.tokens} />
-					</div>
-					<div class="basis-4/5">
-						<NftsChart tokenData={value.tokens} />
-					</div>
-				</div>
-				<TokensTable tokenData={value.tokens} />
-			</div>
-		</svelte:fragment>
-	</Tabs>
+{:else}
+	{goto('/dashboard')}
 {/if}

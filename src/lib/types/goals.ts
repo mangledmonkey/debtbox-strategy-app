@@ -4,7 +4,7 @@ export type Goal = {
     id?: number,
     target: number,
     name: string,
-    order: number,
+    order?: number,
 };
 
 export type Goals = Goal[];

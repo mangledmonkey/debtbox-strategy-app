@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {
-	CompoundValue,
+	    CompoundValue,
 	    CompoundValues,
         StrategyValuesContext,
 		WalletTotals
@@ -8,10 +8,11 @@
     import currency from "currency.js";
     import { scaleTime } from 'd3-scale';
     import { format } from 'date-fns';
-	import { getStrategyValuesCtx } from "$lib/contexts";
-	import { getCompoundValues } from "$lib/utils";
-    import { Chart, Svg, Axis, Spline, Highlight, Tooltip, TooltipItem } from 'layerchart';
+	import { getGoalsCtx, getStrategyValuesCtx } from "$lib/contexts";
+	import { getCompoundValues, getGoalDates } from "$lib/utils";
+    import { Chart, Svg, Axis, Spline, Highlight, Rule, Text, Tooltip, TooltipItem } from 'layerchart';
     import { Collapse, formatDate, Paginate, Pagination, PeriodType, Table } from "svelte-ux";
+    import { goalColors } from "$lib/data/goalColors";
 
     interface Props {
         walletTotals: WalletTotals,
@@ -22,7 +23,10 @@
     const strategyValues: StrategyValuesContext = getStrategyValuesCtx();
     // console.log('🚀 ~ strategyValues:', $strategyValues)
 
+    const goals = getGoalsCtx();
+    
     const compoundValues: CompoundValues|undefined = $derived(getCompoundValues(walletTotals, $strategyValues));
+    const goalDates = $derived(getGoalDates($goals, compoundValues));
 
     // $inspect('🚀 ~ compoundValues:', compoundValues)   
 </script>
@@ -41,13 +45,35 @@
             tooltip={{ mode: "bisect-x" }}
         >
             <Svg>
-                <Axis placement="left" grid rule />
                 <Axis
-                    placement="bottom"
-                    format={(d: Date) => formatDate(d, PeriodType.MonthYear, { variant: "short" })}
+                    placement="left"
+                    format={(c: number) => currency(c, { precision: 0 }).format()}
                     grid
                     rule
+                    labelProps={{
+                        class: "fill-success font-bold text-xs",
+                    }}
                 />
+                <Axis
+                    placement="bottom"
+                    format={(d: Date) => format(d,  "MMM `yy" )}
+                    grid
+                    rule
+                    labelProps={{
+                        rotate: 315,
+                        textAnchor: "end",
+                        class: "font-semibold",
+                      }}              
+                />
+                {#if goalDates}
+                    {#each goalDates as goal, i}
+                       {console.log('🚀 ~ i:', i, 'color:', goalColors[i])}
+                        <Rule
+                            x={goal.date}
+                            class={`stroke-2 [stroke-dasharray:4] [stroke-linecap:round] stroke-${goalColors[i]}`}
+                        />
+                    {/each}
+                {/if}
                 <Spline yScale="dailyRewardsValue" class="stroke-2 stroke-primary" />
                 <Highlight points lines />
             </Svg>
@@ -73,6 +99,9 @@
     </div>
     <Collapse
         class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b p-2"
+        classes={{
+            trigger: "bg-surface-200",
+        }}
     >
         <div slot="trigger" class="flex-1 px-3 py-3">Compound Strategy Chart Data</div>
         <div class="px-3 pb-3 bg-surface-200 border-t overflow-x-scroll">

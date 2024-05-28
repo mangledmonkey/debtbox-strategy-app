@@ -9,8 +9,8 @@ export class DebtBoxStrategyDexie extends Dexie {
     constructor() {
         super('debtBoxStrategy');
         this.version(1).stores({
-            goals: '++id, target, name, order',
-            wallets: '++id, address, primary',
+            goals: '++id, order, &target, &name',
+            wallets: '++id, order, &address, primary',
         });
     }
 }
