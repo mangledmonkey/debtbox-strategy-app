@@ -18,7 +18,7 @@
 	let { connectToEthereum } = $props();
 
 	// export let data;
-	let value: TokensData | undefined = $state();
+	let value: TokensData|undefined = $state();
 	const walletData = getWalletDataCtx();
 	// const walletTotals = getWalletTotalsCtx();
 
@@ -66,7 +66,7 @@
 		</article>
 	{:else}
 		<div class="h-full w-screen flex items-center align-middle text-center">
-			<Icon data={LucideLoaderCircle.toString()} class="animate-spin m-auto text-3xl text-primary" />
+			<Icon svg={LucideLoaderCircle.toString()} class="animate-spin m-auto text-3xl text-primary" />
 		</div>
 	{/if}
 {:else if !$loading && !$connected && !$signerAddress}

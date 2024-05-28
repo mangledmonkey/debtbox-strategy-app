@@ -1,5 +1,7 @@
 <script>
-	// Get the current year
+	import { Icon } from 'svelte-ux';
+	import LucideHeart from '~icons/lucide/heart?raw';	// Get the current year
+
 	let year = new Date().getFullYear();
 </script>
 
@@ -9,6 +11,8 @@
 		<nav class="mt-2">
 			<a href="/privacy-policy" class="mx-2 text-primary hover:underline">Privacy Policy</a>
 			<a href="/terms-of-service" class="mx-2 text-primary hover:underline">Terms of Service</a>
+			<a href="/donate" class="mx-2 text-primary hover:underline">Donate&nbsp;<Icon data={LucideHeart} style="color: #ae1114" size={14} /></a>
+			<a href="/contact" class="mx-2 text-primary hover:underline">Contact</a>
 		</nav>
 	</div>
 </footer>

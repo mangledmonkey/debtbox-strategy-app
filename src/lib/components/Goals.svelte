@@ -1,8 +1,6 @@
 <script lang="ts">
 	import type { GoalData, GoalsData, StrategyValuesContext, WalletTotalsContext } from '$lib/types';
 	import { db } from '$lib/db';
-	import type { Goals } from '$lib/server/db/schema/goals';
-	import { useQuery, useMutation, useQueryClient } from '@sveltestack/svelte-query';
 	import { getWalletTotalsCtx, getStrategyValuesCtx, getGoalsCtx } from '$lib/contexts';
 	import currency from 'currency.js';
 	import { Button, Card, Icon, TextField, Table } from 'svelte-ux';
@@ -139,14 +137,12 @@
 			{#if !addingGoal}
 				<Button
 					icon={LucideCirclePlus}
-					variant="outline"
 					color="primary"
 					onclick={addGoal}
 					hidden={addingGoal}>Add Goal</Button
 				>
 				<Button
 					icon={LucideEdit3}
-					variant="outline"
 					color="secondary"
 					onclick={editGoals}
 					hidden={addingGoal}>Edit Goals</Button
@@ -186,12 +182,12 @@
 					</TextField>
 					<div class="min-w-400 flex flex-row gap-5">
 						<div class="m-auto">
-							<Button icon={LucideCheck} variant="outline" color="success" on:click={saveGoal}
+							<Button icon={LucideCheck} color="success" on:click={saveGoal}
 								>Save</Button
 							>
 						</div>
 						<div class="m-auto">
-							<Button icon={LucideOctagonX} variant="outline" color="danger" on:click={cancelGoal}
+							<Button icon={LucideOctagonX} color="danger" on:click={cancelGoal}
 								>Cancel</Button
 							>
 						</div>
