@@ -34,14 +34,14 @@
 
 {#if $loading || $connected && $signerAddress}
 	{#if $walletData && value}
-		<article class="p-5">
+		<article class="mt-2 sm:p-5">
 			<Tabs
 				options={$walletData}
 				placement="top"
 				bind:value
 				classes={{
 					root: 'overflow-hidden',
-					content: 'border px-4 py-5 rounded-b rounded-tr',
+					content: 'border px-2 sm:px-4 py-5 rounded-b rounded-tr',
 					tab: { root: 'rounded-t' }
 				}}
 			>
@@ -51,7 +51,7 @@
 						<RewardsCollectionTarget walletTotals={value.totals} />
 						<CompoundsChart walletTotals={value.totals} />
 						<Goals />
-						<div class="flex w-full flex-col md:gap-5 lg:flex-row">
+						<div class="flex w-full flex-col-reverse md:gap-5 md:flex-row">
 							<div class="flex basis-1/5 justify-stretch">
 								<PurchasePriority tokenData={value.tokens} />
 							</div>

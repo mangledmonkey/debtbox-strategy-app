@@ -201,7 +201,7 @@
 	<AppBar class="bg-surface-100" menuIcon={null}>
 		<a href="/" class="flex flex-row items-center text-white active:no-underline hover:no-underline">
 			<Logo name="logo" />
-			<div class="ml-2 text-xl font-medium">DEBT Rewards Strategy</div>
+			<div class="ml-2 text-xs sm:text-md md:text-xl font-medium">DEBT Rewards Strategy</div>
 		</a>
 		<div slot="actions" class="flex flex-row items-middle gap-5">
 				<!-- App actions -->
