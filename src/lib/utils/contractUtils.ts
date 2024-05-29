@@ -1,33 +1,37 @@
-import { type Address } from 'viem'
-import type { Contract } from '$lib/types'
+import type { Address } from 'viem';
+import type { Contract, WalletProgressDataContext } from '$lib/types';
 import consola from 'consola';
-import { memoryCache } from '$lib/cache'
+import { memoryCache } from '$lib/cache';
+import { updateWalletProgressData } from './walletUtils';
 
 export const getContractInformation = async (
     address: Address|string,
     chainId: number|null|undefined,
   ): Promise<Contract> => {
     try {
-        const response = await fetch(`https://anyabi.xyz/api/get-abi/${chainId}/${address}`)
-        if (!response.ok) return { name: 'Unverified', address, abi: [] }
-        const contractData = await response.json()
+        const response = await fetch(`https://anyabi.xyz/api/get-abi/${chainId}/${address}`);
+        if (!response.ok) return { name: 'Unverified', address, abi: [] };
+        const contractData = await response.json();
     
         return {
              ...contractData,
             address,
-        }
+        };
     } catch (e) {
-        consola.error(e)
-        throw new Error('Contract not found')
+        consola.error(e);
+        throw new Error('Contract not found');
     }
-}
+};
 
 export const getCachedContractInformation = async (
     address: Address|string,
-    chainId: number
+    chainId: number,
+    walletAddress: Address,
+    walletProgress: WalletProgressDataContext
   ): Promise<Contract> => {
     try {
-      consola.info('Fetching contract information for', address, 'on chain', chainId)
+      consola.info('Fetching contract information for', address, 'on chain', chainId);
+      updateWalletProgressData(walletAddress, walletProgress, true);
       const cachekey = `contractInfo_${address}`;
       // consola.info('🚀 ~ contractData from cache:', contractData)
 
@@ -35,42 +39,42 @@ export const getCachedContractInformation = async (
       // console.log("🚀 ~ getCachedContractInformation ~ contractData:", contractData)
   
       if (contractData) {
-        consola.info('Found in memory cache')
+        consola.info('Found in memory cache');
         return {
           name: contractData.name,
           abi: contractData.abi,
           address,
-        }
+        };
       }
 
       // Get contract data if no cache found
-      consola.info('getContractInformation() ~ no cached data found')
-      const contract = await getContractInformation(address, chainId)
+      consola.info('getContractInformation() ~ no cached data found');
+      const contract = await getContractInformation(address, chainId);
   
       // Don't cache unverified contracts
       if (contract.name === 'Unverified') {
-        return contract
+        return contract;
       }
   
       // Update the cache
-      consola.info('Updating memory cache')
+      consola.info('Updating memory cache');
       const cacheData = {
         id: `${chainId}:${address}`,
         name: contract.name,
         address,
         abi: contract.abi,
         chainId,
-      }
-      memoryCache.set(cachekey, cacheData, 1800 * 1000)
+      };
+      memoryCache.set(cachekey, cacheData, 1800 * 1000);
       // console.log(`🚀 ~ memoryCache.set(${address}):`, await memoryCache.get(cachekey))
       
   
-      return contract
+      return contract;
     } catch (e) {
-      consola.error(e)
-      throw new Error('Contract not found')
+      consola.error(e);
+      throw new Error('Contract not found');
     }
-}
+};
 
 // export function getUnstakedNfts(contractAddress: Address|string, userAddress: Address|string, chainId: number) {
     

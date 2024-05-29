@@ -1,7 +1,14 @@
 <script lang="ts">
 	import '../app.pcss';
 	import type { Address } from 'viem';
-	import type { Goals, GoalsContext, WalletDataContext, WalletTotalsContext, Wallets, WalletsContext } from '$lib/types';
+	import type {
+		Goals,
+		GoalsContext,
+		WalletDataContext,
+		WalletTotalsContext,
+		Wallets,
+		WalletsContext
+	} from '$lib/types';
 	import { defaultConfig, WC} from 'svelte-wagmi';
 	import { bsc } from '@wagmi/core/chains';
 	import { 
@@ -24,25 +31,28 @@
 	import { Footer, Logo } from '$lib/components';
 	import { 
 		truncateEthAddress,
-		getUserWallets,
-		getWalletData
 	} from '$lib/utils';
     import { 
 		setWalletsCtx,
 		getWalletsCtx,
 		setWalletDataCtx, 
-		getWalletDataCtx,
+		setWalletProgressCtx,
 		setWalletTotalsCtx,
-		getWalletTotalsCtx,
 		setStrategyValuesCtx,
 		setGoalsCtx,
 		getGoalsCtx,
+		setTableDataStatusCtx,
+		getWalletDataCtx,
+		getWalletProgressCtx,
+		getWalletTotalsCtx,
+		getTableDataStatusCtx,
 	} from '$lib/contexts';
 	import { defaultValues } from '$lib/data/defaultCompoundValues';
-	import { walletDataStore } from '$lib/stores';
 	import consola from 'consola';
 	import { setContext } from 'svelte';
 	import { page } from '$app/stores';
+	import { walletDataStore } from '$lib/stores';
+
 
 	let { data, children } = $props();
 	console.log('🚀 ~ data.initialState:', data.initialState)
@@ -54,7 +64,6 @@
 	let walletsObservable: Observable<Wallets> = liveQuery<Wallets>(
 		() => db.wallets.toArray()
 	)
-	console.log('🚀 ~ walletsObservable:', walletsObservable)
 	walletsObservable.subscribe({
 		next: result => $wallets = result,
 		error: error => consola.error(error),
@@ -71,37 +80,58 @@
 		next: result => $goals = result,
 		error: error => consola.error(error),
 	})
-	$inspect('$goals:', $goals)
 
+	// // Wallet Loading Progress
+	setWalletProgressCtx(undefined);
+
+	// Table data status
+	setTableDataStatusCtx({
+		loading: false,
+		loaded: false,
+	})
+
+	// // Wallet Data
     setWalletDataCtx(undefined);
     const walletData: WalletDataContext = getWalletDataCtx();
+
 	setWalletTotalsCtx(undefined);
 	const walletTotals: WalletTotalsContext = getWalletTotalsCtx();
 
 	setStrategyValuesCtx(defaultValues);
 
-	let tableDataLoaded = $state(false);
+	// Wallet Loading Progress
+	const walletProgress = getWalletProgressCtx();
 
-		// Get user's wallets if available
-	async function getTableData(
-		// signerAddress: Address | string | null,
-		// $wa
-		chainId: number | null | undefined
-	) {
-		if ($signerAddress || $wallets) {
-			console.log('🚀 ~ calling getTableData...');
-			// const userWallets: Address[]|string|null = await getUserWallets(signerAddress);
-			// const primaryWallet = 
-			
-			console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
-			
-			// Set the store
-			await walletDataStore.loadData($wallets, chainId);
-			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
-			$walletData = $walletDataStore;
+	// Wallet Data
+	const tableDataStatus = getTableDataStatusCtx();
 
-			if ($walletDataStore && $walletDataStore.length > 0) {
-				$walletTotals = $walletDataStore[0].value.totals;
+	// Get user's wallets if available
+	async function getTableData() {
+		if (
+			!$tableDataStatus.loaded
+			&& !$tableDataStatus.loading
+		) {
+
+			if ($signerAddress || $wallets) {
+				$tableDataStatus.loading = true;
+				$tableDataStatus.loaded = false;
+				console.log('🚀 ~ calling getTableData...');
+				// const userWallets: Address[]|string|null = await getUserWallets(signerAddress);
+				// const primaryWallet = 
+				
+				console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
+				
+				// Set the store
+				await walletDataStore.loadData($wallets, $chainId, walletProgress);
+				console.log('🚀 ~ $walletDataStore:', $walletDataStore)
+				$walletData = $walletDataStore;
+				
+				if ($walletDataStore && $walletDataStore.length > 0) {
+					$walletTotals = $walletDataStore[0].value.totals;
+					$tableDataStatus.loaded = true;
+				}
+				
+				$tableDataStatus.loading = false;
 			}
 		}
 	}
@@ -133,15 +163,21 @@
 		if (!$connected) {
 			initWeb3Connect()
 		}
+	})
 
-		if ($connected && !tableDataLoaded && $signerAddress) {
-			// setPrimaryWallet($signerAddress, wallets)
-			// getTableData($signerAddress, $chainId);
-			getTableData($chainId);
-		} else if ($wallets) {
-			getTableData($chainId);
+	$effect(() => {
+		if (
+			!$tableDataStatus.loaded
+			&& !$tableDataStatus.loading
+			&& (!$walletData || $walletData.length === 0)
+			&& (
+				$connected
+				&& $signerAddress
+				|| $wallets
+			)
+		) {
+			getTableData();
 		}
-		
 	})
 
 	$inspect('Connected:', $connected);
@@ -150,7 +186,6 @@
 	$inspect('Loading:', $loading);
 	$inspect('layout $wallets:', $wallets);
 	// $: console.log('$walletData:', $walletData);
-	
 </script>
 
 <svelte:head>
@@ -218,8 +253,8 @@
 			{/if}
 		</div>
 	</AppBar>
-
-	<main class="min-h-full overflow-y-scroll">
+	
+	<main class="flex-grow overflow-y-scroll">
 		{@render children()}
 		<Footer />
 	</main>

@@ -5,6 +5,7 @@ import type {
     DiamondData,
     TokenData,
     TokensData,
+    WalletProgressDataContext,
     WalletTotals
 } from '$lib/types';
 import { type Address, getAddress, formatUnits } from 'viem';
@@ -14,7 +15,8 @@ import {
     getWalletTotals,
     truncateEthAddress,
     getCachedContractInformation,
-    getDiamondInformation
+    getDiamondInformation,
+    updateWalletProgressData
 } from '$lib/utils';
 import { config } from '$lib/configs/wagamiConfig';
 import { debtStakingContract } from '$lib/data/debtStakingContract';
@@ -27,15 +29,21 @@ export function getTokenPrice(_tokens: DebtBoxToken[], projectId: string): numbe
     return token?.attributes.priceUsd;
 }
 
-export async function getRewardsData(project: DebtBoxProject, walletAddress: Address|string, chainId: number): Promise<DiamondData|undefined> {
-    const contractData = await getDiamondInformation(project.attributes.rewardsDistributorAddress, chainId)
+export async function getRewardsData(project: DebtBoxProject, walletAddress: Address|string, chainId: number, walletProgress: WalletProgressDataContext): Promise<DiamondData|undefined> {
+    const contractData = await getDiamondInformation(
+        project.attributes.rewardsDistributorAddress,
+        chainId,
+        walletAddress,
+        walletProgress
+    );
     // consola.info("🚀 ~ getRewardsData ~ contractData:", JSON.stringify(contractData))
-
+    
     try {
+        updateWalletProgressData(walletAddress, walletProgress, true);
         const rewardsDistributorDiamondContract = {
             address: project.attributes.rewardsDistributorAddress,
             abi: contractData.diamondAbi,
-        }
+        };
 
         const [
             stakedNfts,
@@ -66,7 +74,7 @@ export async function getRewardsData(project: DebtBoxProject, walletAddress: Add
                     args: []
                 },
             ]
-        })
+        });
         // console.log('🚀 ~ getRewardsData ~ stakedNFts:', stakedNfts)
         // console.log('🚀 ~ getRewardsData ~ stakedMicros:', stakedMicros)
         // console.log('🚀 ~ getRewardsData ~ pendingRewards:', pendingRewards)
@@ -77,7 +85,7 @@ export async function getRewardsData(project: DebtBoxProject, walletAddress: Add
             stakedMicros,
             pendingRewards,
             rewardsPerSecond
-        }
+        };
         
         // tokenBalance = Number(formatUnits(balance, token.attributes.decimals));
         // console.log("🚀 ~ getRewardsData ~ tokenBalance:", tokenBalance)
@@ -92,17 +100,23 @@ export async function getRewardsData(project: DebtBoxProject, walletAddress: Add
  * @param address 
  * @returns wallet token balance formatted to token decimals 
  */
-export async function getTokenBalance(token: DebtBoxToken, walletAddress: Address): Promise<number> {
+export async function getTokenBalance(
+    token: DebtBoxToken,
+    walletAddress: Address,
+    walletProgress: WalletProgressDataContext
+): Promise<number> {
     consola.info(`getTokenBalance() ~ Reading balanceOf on token: ${token.attributes.address}, for wallet: ${truncateEthAddress(walletAddress)}` );
-    let tokenBalance: number = 0
+    let tokenBalance: number = 0;
 
     try {
-        const contractData = await getCachedContractInformation(token.attributes.address, token.attributes.chainId)
+        updateWalletProgressData(walletAddress, walletProgress, true);
+        const contractData = await getCachedContractInformation(
+            token.attributes.address,
+            token.attributes.chainId,
+            walletAddress,
+            walletProgress
+        );
         // console.log("🚀 ~ getTokenBalance ~ contractData:", contractData)
-        // const balance = await getBalance(config, {
-        //     address: address,
-        //     tokenAddress: token.attributes.address
-        // });
 
         const balance = <bigint><unknown>await readContracts(config, {
             allowFailure: false,
@@ -118,7 +132,7 @@ export async function getTokenBalance(token: DebtBoxToken, walletAddress: Addres
         // console.info('token balanceOf: ', balance);
         
         tokenBalance = Number(formatUnits(balance, token.attributes.decimals));
-        console.log("🚀 ~ getTokenBalance ~ tokenBalance:", tokenBalance)
+        console.log("🚀 ~ getTokenBalance ~ tokenBalance:", tokenBalance);
     } catch (error: any) {
         consola.error(`getTokenBalance ~ Error fetching balance on ${token.attributes.address}:\n`, error.message);
     }
@@ -134,8 +148,10 @@ export async function getTokenBalance(token: DebtBoxToken, walletAddress: Addres
  */
 export async function getDebtStakingData(
     walletAddress: Address|string,
+    walletProgress: WalletProgressDataContext
 ): Promise<DebtStakingData> {
     consola.info(`getDebtStakingData() ~ Reading DEBT staking data for wallet for wallet: ${truncateEthAddress(walletAddress)}` );
+    updateWalletProgressData(walletAddress, walletProgress);
     
     let debtStakingData: DebtStakingData = {
         baseStakeUnits: 0,
@@ -145,7 +161,7 @@ export async function getDebtStakingData(
         maxStakeable: 0,
         stakedTokens: 0,
         stakedVbox: 0,
-    }
+    };
 
     // Get the debt token data from the contract
     try {
@@ -153,7 +169,7 @@ export async function getDebtStakingData(
         const debtContract = {
             address: debtStakingContract.address,
             abi: debtTokenStakingAbi,
-        }
+        };
 
        const [
             baseStakeUnits,
@@ -200,7 +216,7 @@ export async function getDebtStakingData(
                     args: [walletAddress]
                 },
             ]
-        })
+        });
         // console.log('🚀 ~ getDebtStakingData ~ baseStakeUnits:', baseStakeUnits)
         // console.log('🚀 ~ getDebtStakingData ~ additionalStakeUnitsForVbox:', additionalStakeUnitsForVbox)
         // console.log('🚀 ~ getDebtStakingData ~ activeTokens:', activeTokens)
@@ -211,7 +227,7 @@ export async function getDebtStakingData(
 
         if (Array.isArray(stakedTokens)) {
             // console.log('🚀 ~ stakedTokens.length:', stakedTokens.length, 'stakedTokens:', stakedTokens)
-            stakedTokensCount = stakedTokens.length
+            stakedTokensCount = stakedTokens.length;
         }
 
         debtStakingData = {
@@ -222,7 +238,7 @@ export async function getDebtStakingData(
             maxStakeable: Number(maxStakeable),
             stakedTokens: stakedTokensCount,
             stakedVbox: Number(stakedVbox),
-        }
+        };
         // tokenBalance = Number(formatUnits(balance, token.attributes.decimals));
         // console.log("🚀 ~ getRewardsData ~ tokenBalance:", tokenBalance)
     } catch (error: any) {
@@ -242,14 +258,23 @@ export async function getDebtStakingData(
  * @returns TokenData for the provided project
  */
 // Collect token values
-async function getTokenData(project: DebtBoxProject, tokens: DebtBoxToken[], walletAddress: Address|string, chainId: number, i: number): Promise<TokenData|void> {
+async function getTokenData(
+    project: DebtBoxProject,
+    tokens: DebtBoxToken[],
+    walletAddress: Address|string,
+    chainId: number,
+    walletProgress: WalletProgressDataContext,
+    i: number
+): Promise<TokenData|void> {
+    updateWalletProgressData(walletAddress, walletProgress);
+
     const token: DebtBoxToken|undefined = tokens.find(token => token.id === project.relationships.token.data.id);
     const decimals: number = token?.attributes.decimals || 8;
-    const rewardsData = await getRewardsData(project, walletAddress, chainId);
+    const rewardsData = await getRewardsData(project, walletAddress, chainId, walletProgress);
 
     // Prepare table data
     const price = getTokenPrice(tokens, project.relationships.token.data.id) || 0;
-    const inWallet: number = token ? Number((await getTokenBalance(token, getAddress(walletAddress))).toFixed(4)) : 0;
+    const inWallet: number = token ? Number((await getTokenBalance(token, getAddress(walletAddress), walletProgress)).toFixed(4)) : 0;
     const walletValue: number = price && inWallet ? price * inWallet : 0;
     const stakedNfts: number = 
         rewardsData?.stakedNfts ? Number(formatUnits(rewardsData?.stakedNfts, 0)) : 0;
@@ -305,13 +330,13 @@ async function getTokenData(project: DebtBoxProject, tokens: DebtBoxToken[], wal
         yearlyWalletRewardsValue,
         rewards,
         rewardsValue,
-    }
+    };
 
     if (totalNfts === 0 && project.attributes.name !== 'DEBT') {
-        throw new Error(`No NFTs in ${truncateEthAddress(walletAddress)} for ${project.attributes.name}`)
+        throw new Error(`No NFTs in ${truncateEthAddress(walletAddress)} for ${project.attributes.name}`);
     }
 
-    return values
+    return values;
 }
 
 /**
@@ -325,33 +350,36 @@ export async function getTokensData(
     projects: DebtBoxProject[],
     tokens: DebtBoxToken[],
     walletAddress: Address|string,
-    chainId: number
+    chainId: number,
+    walletProgress: WalletProgressDataContext
 ): Promise<TokensData> {
-    const debtStakingData: DebtStakingData|undefined = await getDebtStakingData(walletAddress);
+    const debtStakingData: DebtStakingData|undefined = await getDebtStakingData(walletAddress, walletProgress);
+    updateWalletProgressData(walletAddress, walletProgress);
 
     const tokenData: Promise<TokenData|void>[] = projects.map(async (project, i) => {
-        console.log('🚀 ~ tokenData: fetching data for:', project)
-        return getTokenData(project, tokens, walletAddress,chainId, i).catch(error => undefined)
-    })
+        console.log('🚀 ~ tokenData: fetching data for:', project);
+        return getTokenData(project, tokens, walletAddress, chainId, walletProgress, i)
+            .catch(error => undefined);
+    });
     
-    console.log('🚀 ~ consttokenData:Promise<TokenData|undefined>[]=projects.map ~ tokenData:', tokenData)
+    console.log('🚀 ~ consttokenData:Promise<TokenData|undefined>[]=projects.map ~ tokenData:', tokenData);
 
-    const tokenValues = await Promise.all(tokenData)
+    const tokenValues = await Promise.all(tokenData);
     
-    const filteredTokenValues: (TokenData|void)[] = tokenValues.filter(results => results !== undefined)
+    const filteredTokenValues: (TokenData|void)[] = tokenValues.filter(results => results !== undefined);
 
     // Total the wallet values
-    const totals: WalletTotals = getWalletTotals(filteredTokenValues, debtStakingData);
+    const totals: WalletTotals = getWalletTotals(filteredTokenValues, debtStakingData, walletAddress, walletProgress);
 
 
     // console.log("🚀 ~ prepareTokensData ~ cell:", cell)
     const tokensData = {
         tokens: filteredTokenValues,
         totals
-    }
+    };
 
-    if (!tokensData) throw new Error(`No NFTs in wallet for ${walletAddress}`)
+    if (!tokensData) throw new Error(`No NFTs in wallet for ${walletAddress}`);
     
-    console.log('🚀 ~ tokensData:', tokensData)
+    console.log('🚀 ~ tokensData:', tokensData);
     return tokensData;
 }

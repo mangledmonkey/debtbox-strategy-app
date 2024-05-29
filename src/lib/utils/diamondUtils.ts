@@ -1,25 +1,27 @@
-import type { Contract, Diamond, DiamondInfo, FacetData } from '$lib/types'
-import { type Abi, type Address, parseAbi, getAddress, toFunctionSelector } from 'viem'
+import type { Contract, Diamond, DiamondInfo, FacetData, WalletProgressDataContext } from '$lib/types';
+import { type Abi, type Address, parseAbi, getAddress, toFunctionSelector } from 'viem';
 import { readContracts } from "@wagmi/core";
-import { memoryCache } from '$lib/cache'
+import { memoryCache } from '$lib/cache';
 import consola from 'consola';
-import { getCachedContractInformation } from './contractUtils'
-import { config } from '$lib/configs/wagamiConfig'
+import { getCachedContractInformation } from './contractUtils';
+import { config } from '$lib/configs/wagamiConfig';
 import { RewardsDistributorDiamondAbi } from '$lib/data/abis';
 
 export const getDiamondInformation = async (
     address: Address|string,
     chainId: number,
+    walletAddress: Address,
+    walletProgress: WalletProgressDataContext
   ): Promise<DiamondInfo> => {
 
     const cachekey = `diamondInfo_${address}`;
 
     // Set contractData from existing cache
-    consola.info('getDiamondInformation() ~ no cached data found')
-    const abi = parseAbi(['function facets() view returns ((address,bytes4[])[])'])
+    consola.info('getDiamondInformation() ~ no cached data found');
+    const abi = parseAbi(['function facets() view returns ((address,bytes4[])[])']);
 
     try {   
-        consola.info('Fetching diamond information for', address, 'on chain', chainId)
+        consola.info('Fetching diamond information for', address, 'on chain', chainId);
         let diamondAbi: Abi = RewardsDistributorDiamondAbi;
 
         // Fetch all facet addresses
@@ -32,24 +34,30 @@ export const getDiamondInformation = async (
                     functionName: 'facets',
                 }
             ]
-        })
+        });
 
         // Build the diamond
         const diamond: Diamond = {
-            ...(await getCachedContractInformation(getAddress(address), chainId)),
+            ...(await getCachedContractInformation(getAddress(address), chainId, walletAddress, walletProgress)),
             facets: [],
-        }
+        };
 
         // Fetch all facet information
         for (const [address, selectors] of facetData) {
-            const facet = await buildFacet(address, selectors, chainId,)
+            const facet = await buildFacet(
+              address,
+              selectors,
+              chainId,
+              walletAddress,
+              walletProgress
+            );
             // console.log("🚀 ~ facet:", facet)
-            if (!facet) continue
-            diamond.facets.push(facet)
-            diamondAbi = [...diamondAbi, ...facet.abi]
+            if (!facet) continue;
+            diamond.facets.push(facet);
+            diamondAbi = [...diamondAbi, ...facet.abi];
         }
 
-        memoryCache.set(cachekey, diamond, 30 * 1000)
+        memoryCache.set(cachekey, diamond, 30 * 1000);
         // console.info(`contractData cached for ${address}:`, await memoryCache.get(cachekey))
 
         return {
@@ -57,52 +65,54 @@ export const getDiamondInformation = async (
             address,
             diamond,
             diamondAbi
-        }
+        };
 
     } catch (e) {
-        consola.error(e)
-        throw new Error('Contract not found')
+        consola.error(e);
+        throw new Error('Contract not found');
     }
-}
+};
 
 const buildFacet = async (
     address: Address,
     selectors: string[],
-    chainId: number
+    chainId: number,
+    walletAddress: Address,
+    walletProgress: WalletProgressDataContext
   ): Promise<Contract | undefined> => {
-    const facet: Contract = await getCachedContractInformation(address, chainId)
+    const facet: Contract = await getCachedContractInformation(address, chainId, walletAddress, walletProgress);
   
-    const abiSigs = []
+    const abiSigs = [];
     if (!facet.abi.length) {
       for (const s of selectors) {
-        const sig = await getFuncSigBySelector(s)
-        abiSigs.push(`function ${sig}`)
+        const sig = await getFuncSigBySelector(s);
+        abiSigs.push(`function ${sig}`);
       }
-      facet.abi = parseAbi(abiSigs)
+      facet.abi = parseAbi(abiSigs);
     }
   
     const fileredAbi: Abi = facet.abi.filter((item) => {
-      if (item.type !== 'function') return true
+      if (item.type !== 'function') return true;
       if (!item.outputs) {
-        item.outputs = []
+        item.outputs = [];
       }
-      return selectors.includes(toFunctionSelector(item))
-    })
+      return selectors.includes(toFunctionSelector(item));
+    });
   
-    facet.abi = fileredAbi
+    facet.abi = fileredAbi;
   
-    return facet
-  }
+    return facet;
+  };
 
   export const getFuncSigBySelector = async (selector: string): Promise<string> => {
     const response = await fetch(
       `https://api.openchain.xyz/signature-database/v1/lookup?function=${selector}&filter=true`,
-    )
-    const data = await response.json()
+    );
+    const data = await response.json();
   
     if (data && data.result && data.result.function && data.result.function[selector]) {
-      return data.result.function[selector][0].name
+      return data.result.function[selector][0].name;
     }
   
-    return 'unknown()'
-  }
+    return 'unknown()';
+  };

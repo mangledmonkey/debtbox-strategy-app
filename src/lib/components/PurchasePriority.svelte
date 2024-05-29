@@ -13,7 +13,7 @@
     const sortedTokenData = $state(sortTokensByDailyRewardsValue(tokenData));
 </script>
 <article id="purchasePriority" >
-    <h3>Purchase Priority</h3>
+    <h2>Purchase Priority</h2>
     <Card class="my-5 p-2 w-full sm:w-48 sm:mx-auto">
         <ol class="flex flex-col sm:flex-wrap w-40 self-center sm:gap-2 justify-evenly">
             {#each sortedTokenData as token, i}

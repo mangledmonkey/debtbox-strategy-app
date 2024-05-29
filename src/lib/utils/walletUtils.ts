@@ -1,5 +1,5 @@
 import type { Address } from "viem";
-import type { DebtStakingData, Options, TokenData, WalletTotals } from "$lib/types";
+import type { DebtStakingData, Options, TokenData, WalletProgress, WalletProgressData, WalletProgressDataContext, WalletTotals, Wallets } from "$lib/types";
 
 export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...");
@@ -57,7 +57,10 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
     return walletData;
 }
 
-export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: DebtStakingData): WalletTotals  {
+export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: DebtStakingData, walletAddress?: Address|string, walletProgress?: WalletProgressDataContext ): WalletTotals  {
+    if (walletAddress && walletProgress)
+        updateWalletProgressData(walletAddress, walletProgress);
+
     // console.log('🚀 ~ getWalletTotals ~ tableData:', tokens)
     const walletTotals: WalletTotals = {
         ...debtStakingData,
@@ -84,6 +87,9 @@ export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: Deb
                 walletTotals.dailyReturns += token.dailyWalletRewardsValue;
                 walletTotals.walletBalance += token.walletValue;
                 walletTotals.rewardsBalance += token.rewardsValue;
+
+                if (walletAddress && walletProgress)
+                    updateWalletProgressData(walletAddress, walletProgress, true);
             }
         }
 
@@ -94,4 +100,53 @@ export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: Deb
     }
 
     return walletTotals;
+}
+
+export function formatWalletProgressData(wallets: Wallets, stagesCount: number):  WalletProgressData {
+    const walletProgressData: WalletProgressData = {
+        walletCount: wallets.length,
+        wallets: [],
+        status: {
+            stages: stagesCount * wallets.length,
+            stage: 0, 
+        }
+    };
+
+    for (let i = 0; i < wallets.length; i += 1) {
+        const progressData: WalletProgress = {
+            wallet: wallets[i].address,
+            stage: 0,
+        };
+
+        walletProgressData.wallets.push(progressData);
+    }
+
+    return walletProgressData;
+}
+
+export function updateWalletProgressData(
+    address: Address|string,
+    walletProgress: WalletProgressDataContext,
+    bumpStages: boolean = false
+) {
+    // const walletProgress = getWalletProgressCtx();
+    // console.log('🚀 ~ updateWalletProgressData ~ walletProgress:', walletProgress);
+
+    walletProgress.update((p) => {
+        if (p) {
+            p.wallets.forEach((w) => {
+                if (w.wallet === address) {
+                    w.stage += 1;
+                }
+            });
+
+            p.status.stage += 1;
+
+            if (bumpStages) p.status.stages += 1;
+
+            // console.log('🚀 ~ updateWalletProgressData ~ walletProgressValues:', p);
+    
+            return p;
+        }
+    });
 }

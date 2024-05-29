@@ -1,26 +1,10 @@
 <script lang="ts">
-	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
+	import { connected, signerAddress } from 'svelte-wagmi';
 	import { goto } from '$app/navigation';
 	import {
 		Hero,
 		Icons,
 	} from '$lib/components';
-
-	// let { connectToEthereum } = $props();
-
-	// export let data;
-	// let value: TokensData | undefined = $state();
-	// const walletData = getWalletDataCtx();
-	// const walletTotals = getWalletTotalsCtx();
-
-	$inspect('🚀 ~ $signerAddress:', $signerAddress);
-	// $: console.log('🚀 ~ value:', value);
-	// $inspect('$walletData:', $walletData);
-	// $: console.log('$walletTotals:', $walletTotals)
-	// $: console.log('🚀 ~ userWallets:', userWallets);
-	// $effect(() => {
-	// 	if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
-	// });
 </script>
 
 {#if !$connected && !$signerAddress}

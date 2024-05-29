@@ -56,7 +56,7 @@
 
 </script>
 
-<div class="p-5">
+<div class="p-5 min-h-full">
     <h1>My Wallets</h1>
     <div class="mt-10 max-w-[60%] mx-auto flex flex-col">
         Add a Wallet

@@ -1,17 +1,19 @@
 <script lang="ts">
-	import type { TokensData } from '$lib/types';
-	import { getWalletDataCtx, getWalletTotalsCtx } from '$lib/contexts';
-	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
-	import LucideLoaderCircle from '~icons/lucide/loader-circle?raw';
-	import { Tab, Tabs, Button, Card, Icon } from 'svelte-ux';
+	import type { TokensData, WalletDataContext } from '$lib/types';
+	import {
+		getWalletDataCtx,
+	} from '$lib/contexts';
+	import { connected, signerAddress, loading } from 'svelte-wagmi';
+	import { Tabs } from 'svelte-ux';
 	import {
 		CompoundsChart,
-		GoalsWidget,
+		Goals,
 		NftsChart,
 		PurchasePriority,
 		RewardsCollectionTarget,
 		SummaryCard,
-		TokensTable
+		TokensTable,
+		WalletProgress
 	} from '$lib/components';
 	import { goto } from '$app/navigation';
 
@@ -19,17 +21,15 @@
 
 	// export let data;
 	let value: TokensData|undefined = $state();
-	const walletData = getWalletDataCtx();
-	// const walletTotals = getWalletTotalsCtx();
+    const walletData: WalletDataContext = getWalletDataCtx();
 
-	$inspect('🚀 ~ $signerAddress:', $signerAddress);
-	// $: console.log('🚀 ~ value:', value);
-	$inspect('$walletData:', $walletData);
-	// $: console.log('$walletTotals:', $walletTotals)
-	// $: console.log('🚀 ~ userWallets:', userWallets);
 	$effect(() => {
 		if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
 	});
+
+	$inspect('🚀 ~ $signerAddress:', $signerAddress);
+	$inspect('$walletData:', $walletData);
+	$inspect('value:', value)
 </script>
 
 {#if $loading || $connected && $signerAddress}
@@ -50,7 +50,7 @@
 						<SummaryCard walletTotals={value.totals} />
 						<RewardsCollectionTarget walletTotals={value.totals} />
 						<CompoundsChart walletTotals={value.totals} />
-						<GoalsWidget />
+						<Goals />
 						<div class="flex w-full flex-col md:gap-5 lg:flex-row">
 							<div class="flex basis-1/5 justify-stretch">
 								<PurchasePriority tokenData={value.tokens} />
@@ -65,9 +65,7 @@
 			</Tabs>
 		</article>
 	{:else}
-		<div class="h-full w-screen flex items-center align-middle text-center">
-			<Icon svg={LucideLoaderCircle.toString()} class="animate-spin m-auto text-3xl text-primary" />
-		</div>
+		<WalletProgress />
 	{/if}
 {:else if !$loading && !$connected && !$signerAddress}
 	{goto('/')}
