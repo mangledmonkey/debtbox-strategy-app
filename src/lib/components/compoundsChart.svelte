@@ -32,8 +32,8 @@
 </script>
 
 <article id="compoundStrategyChart">
-    <h3>Compounds Chart</h3>
-    <div class="h-[300px] p-4 border rounded mt-4">
+    <h2>Compounds Chart</h2>
+    <div class="h-[300px] p-4 border rounded">
         <Chart
             data={compoundValues}
             x="date"
@@ -67,7 +67,6 @@
                 />
                 {#if goalDates}
                     {#each goalDates as goal, i}
-                       {console.log('🚀 ~ i:', i, 'color:', goalColors[i])}
                         <Rule
                             x={goal.date}
                             class={`stroke-2 [stroke-dasharray:4] [stroke-linecap:round] stroke-${goalColors[i]}`}

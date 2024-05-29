@@ -6,7 +6,7 @@ export type DebtBoxToken = {
     attributes: {
         name: string,
         symbol: string,
-        address: Address,
+        address: Address|string,
         decimals: number,
         chainId: number,
         tax: number,

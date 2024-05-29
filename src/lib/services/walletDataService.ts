@@ -1,14 +1,28 @@
-import type { DebtStakingData, Option, Options, TokenData, Wallets } from '$lib/types';
+import type { DebtStakingData, Option, Options, TokenData, WalletProgressDataContext, Wallets } from '$lib/types';
 import type { Address } from 'viem';
-import { truncateEthAddress, getDebtBoxData, getWalletTotals } from '$lib/utils';
+import {
+    truncateEthAddress,
+    getDebtBoxData,
+    getWalletTotals,
+    formatWalletProgressData,
+    updateWalletProgressData
+} from '$lib/utils';
 import { getTokensData } from './tokenDataService';
 
-export async function getWalletData(wallets: Wallets, chainId: number|null|undefined ): Promise<Options>  {
+export async function getWalletData(
+    wallets: Wallets,
+    chainId: number|null|undefined,
+    walletProgress: WalletProgressDataContext
+): Promise<Options>  {
     console.log("🚀 ~ getTokenData ~ start");
     const addresses: (Address|string)[] = wallets.map((wallet => {
         return wallet.address;
     }));
 
+    const stagesCount: number = 17;
+    walletProgress.update(() => formatWalletProgressData(wallets, stagesCount));
+    console.log('🚀 ~ getWalletData ~ initial walletProgress:', walletProgress);
+    
 	const debtBoxData = await getDebtBoxData();
 
 	const walletData: Options = [];
@@ -17,11 +31,18 @@ export async function getWalletData(wallets: Wallets, chainId: number|null|undef
         // Get the user's additional wallets
         for(let i = 0; i < wallets.length; i += 1) {
             const walletAddress: Address|string = addresses[i];
+            updateWalletProgressData(walletAddress, walletProgress);
             
             try {
                 const truncatedAddress = truncateEthAddress(walletAddress);
 
-                const tokensData = await getTokensData(debtBoxData.projects, debtBoxData.tokens, walletAddress, chainId);
+                const tokensData = await getTokensData(
+                    debtBoxData.projects,
+                    debtBoxData.tokens,
+                    walletAddress,
+                    chainId,
+                    walletProgress
+                );
                 
                 const tableData: Option = {
                     label: truncatedAddress,
@@ -29,7 +50,6 @@ export async function getWalletData(wallets: Wallets, chainId: number|null|undef
                 };
                 
                 walletData.push(tableData);
-                
             } catch (error){
                 console.error("🚀 ~ walletDataService ~ error:", error);
             }
@@ -51,6 +71,8 @@ export async function getWalletData(wallets: Wallets, chainId: number|null|undef
 
             // Loop each table data object in the wallet data
             for (let i = 0; i < walletData.length; i += 1) {
+                updateWalletProgressData(wallets[i].address, walletProgress);
+
                 const wallet: Option = walletData[i];
                 const tokens = wallet.value.tokens;
                 const totals = wallet.value.totals;

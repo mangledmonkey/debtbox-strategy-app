@@ -17,7 +17,7 @@
         () => db.wallets.toArray()
     );
 
-    let newWallet: string = '';
+    let newWallet: string|undefined = $state();
     // let valid: boolean = false;
     let addressError: string|undefined;
 
@@ -28,7 +28,7 @@
             console.log('🚀 ~ addWallet ~ order:', order)
             db.wallets.add({
                 order,
-                address: newWallet,
+                address: newWallet || '0x',
                 primary: false
             });
         // }
@@ -56,7 +56,7 @@
 
 </script>
 
-<div class="p-5">
+<div class="p-5 min-h-full">
     <h1>My Wallets</h1>
     <div class="mt-10 max-w-[60%] mx-auto flex flex-col">
         Add a Wallet
@@ -66,7 +66,9 @@
                 placeholder="0x..."
                 value={newWallet}
                 on:change={(e) => {
-                    newWallet = e.detail.value;
+                    if (typeof e.detail.value === 'string') {
+                        newWallet = e.detail.value;
+                    }
                 }}
                 
                 max={42}

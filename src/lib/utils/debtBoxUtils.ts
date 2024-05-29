@@ -16,15 +16,15 @@ export async function getDebtBoxData() {
         // console.log("🚀 ~ getDebtBoxData ~ data:", res)
         
         if (res.data.length > 0) {
-            projects = res.data.filter((project: DebtBoxProject) => project.type === "projects" && project.attributes.name !== 'IN8')
-            tokens = res.included.filter((item: DebtBoxToken) => item.type === "tokens")
+            projects = res.data.filter((project: DebtBoxProject) => project.type === "projects" && project.attributes.name !== 'IN8');
+            tokens = res.included.filter((item: DebtBoxToken) => item.type === "tokens");
         }
     } catch (error) {
-        console.error('Error - DebtBoxData() - could not fetch data')
+        console.error('Error - DebtBoxData() - could not fetch data');
     }
 
     return {
         projects,
         tokens,
-    }
+    };
 }

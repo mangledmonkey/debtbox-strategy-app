@@ -22,8 +22,8 @@
     })
 </script>
 <article id="collectionTargets">
-    <h3>Collection Targets</h3>
-    <div class="flex flex-wrap justify-evenly gap-5 p-4 flex-row">
+    <h2>Collection Targets</h2>
+    <div class="flex flex-wrap justify-evenly gap-5 flex-row">
         <div>
             <Card class="flex justify-start gap-4 p-4 w-full h-full">
                 <h4 class="text-2xl text-center mb-2">Rewards Status</h4>

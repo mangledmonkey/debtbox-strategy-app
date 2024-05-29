@@ -14,41 +14,41 @@
 </script>
 <Card>
     <div class="flex flex-wrap flex-row gap-5 p-4 justify-evenly">
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>DEBT Price</strong>
-            <span class="text-2xl">{currency(walletTotals.debtPrice).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 xl:basis-auto">
+            <span class="text-xs font-semibold">DEBT Price</span>
+            <span class="text-md">{currency(walletTotals.debtPrice).format()}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Daily Rewards</strong>
-            <span class="text-2xl">{currency(walletTotals.dailyReturns).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Daily Rewards</span>
+            <span class="text-md font-bold">{currency(walletTotals.dailyReturns).format()}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Staked NFTs</strong>
-            <span class="text-2xl">{walletTotals.stakedNfts}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Rewards Balance</span>
+            <span class="text-md font-bold">{currency(walletTotals.rewardsBalance).format()}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Unstaked NFTs</strong>
-            <span class="text-2xl">{walletTotals.unstakedNfts}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Staked NFTs</span>
+            <span class="text-md">{walletTotals.stakedNfts}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Rewards Balance</strong>
-            <span class="text-2xl">{currency(walletTotals.rewardsBalance).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Unstaked NFTs</span>
+            <span class="text-md">{walletTotals.unstakedNfts}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>DEBT Staked</strong>
-            <span class="text-2xl">{walletTotals.stakedTokens}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">DEBT Staked</span>
+            <span class="text-md">{walletTotals.stakedTokens}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Staked DEBT Value</strong>
-            <span class="text-2xl">{currency(stakedDebtBalance).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Staked DEBT Value</span>
+            <span class="text-md">{currency(stakedDebtBalance).format()}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Wallet Balance</strong>
-            <span class="text-2xl">{currency(walletTotals.walletBalance).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Wallet Balance</span>
+            <span class="text-md">{currency(walletTotals.walletBalance).format()}</span>
         </div>
-        <div class="flex flex-col text-center basis-2/5 sm:basis-40 lg:basis-52 xl:basis-auto">
-            <strong>Total Value</strong>
-            <span class="text-2xl">{currency(walletTotals.rewardsBalance + walletTotals.walletBalance + stakedDebtBalance).format()}</span>
+        <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
+            <span class="text-xs font-semibold">Total Value</span>
+            <span class="text-md font-bold">{currency(walletTotals.rewardsBalance + walletTotals.walletBalance + stakedDebtBalance).format()}</span>
         </div>
     </div>
 </Card>

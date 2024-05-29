@@ -62,8 +62,9 @@
 	$inspect('🚀 ~ goalsData:', goalsData);
 </script>
 
-<section class="goals-widget my-2">
-	<Card class="overflow-hidden p-2">
+<section  id="goalsWidget" class="my-2 w-full">
+    <h2>Daily Rewards Goals</h2>
+	<Card class="overflow-hidden p-4">
 		<p>{status}</p>
 		<div class="goals-widget--goals-table w-full overflow-x-scroll p-2">
 			{#if goalsData.length > 0}

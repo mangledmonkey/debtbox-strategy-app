@@ -21,7 +21,7 @@
 </script>
 
 <article id="projectTokensTable">
-    <h3>Project Tokens Table</h3>
+    <h2>Project Tokens Table</h2>
     <Table
         class="overflow-x-auto"
         classes={tableClasses}

@@ -1,7 +1,6 @@
 import CompoundsChart from './CompoundsChart.svelte';
 import Footer from './Footer.svelte';
 import Goals from './Goals.svelte';
-import GoalsWidget from './GoalsWidget.svelte';
 import Hero from './Hero.svelte';
 import Icons from './Icons.svelte';
 import Logo from './Logo.svelte';
@@ -10,12 +9,12 @@ import PurchasePriority from './PurchasePriority.svelte';
 import RewardsCollectionTarget from './RewardsCollectionTarget.svelte';
 import SummaryCard from './SummaryCard.svelte';
 import TokensTable from './TokensTable.svelte';
+import WalletProgress from './WalletProgress.svelte';
 
 export { 
     CompoundsChart,
     Footer,
     Goals, 
-    GoalsWidget,
     Hero,
     Logo,
     Icons,
@@ -23,5 +22,6 @@ export {
     PurchasePriority,
     RewardsCollectionTarget, 
     SummaryCard, 
-    TokensTable
+    TokensTable,
+    WalletProgress
 };
