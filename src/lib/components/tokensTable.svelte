@@ -15,13 +15,13 @@
 
     const rewardsTotals = $derived(getRewardsTotals(tokenData))
     const tableClasses = {
-        table: 'mt-5 table-auto overflow-x-auto border-solid border-2',
+        table: 'table-auto overflow-x-auto border-solid border-2 text-sm',
         th: 'min-w-24 text-center align-bottom p-2 border-solid border-b-2',
     }
 </script>
 
 <article id="projectTokensTable">
-    <h2>Project Tokens Table</h2>
+    <h2 class="text-2xl">Project Tokens Table</h2>
     <Table
         class="overflow-x-auto"
         classes={tableClasses}

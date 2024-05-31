@@ -12,9 +12,9 @@
     
     const sortedTokenData = $state(sortTokensByDailyRewardsValue(tokenData));
 </script>
-<article id="purchasePriority" >
-    <h2>Purchase Priority</h2>
-    <Card class="my-5 p-2 w-full sm:w-48 sm:mx-auto">
+<article id="purchasePriority" class="w-full">
+    <h2 class="text-2xl">Purchase Priority</h2>
+    <Card class="my-5 p-2 w-full sm:w-48 mx-auto">
         <ol class="flex flex-col sm:flex-wrap w-40 self-center sm:gap-2 justify-evenly">
             {#each sortedTokenData as token, i}
                 <li class="flex flex-row justify-between basis-2/3 sm:basis-auto">

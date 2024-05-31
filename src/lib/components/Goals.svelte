@@ -63,12 +63,12 @@
 </script>
 
 <section  id="goalsWidget" class="my-2 w-full">
-    <h2>Daily Rewards Goals</h2>
+    <h2 class="text-2xl">Daily Rewards Goals</h2>
 	<Card class="overflow-hidden p-4">
 		<p>{status}</p>
 		<div class="goals-widget--goals-table w-full overflow-x-scroll p-2">
 			{#if goalsData.length > 0}
-				<table class="table-auto sm:w-full">
+				<table class="table-auto sm:w-full text-sm">
 					<thead>
 						<tr>
 							<th class="min-w-4">Name</th>

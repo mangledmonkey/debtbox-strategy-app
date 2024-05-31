@@ -35,7 +35,7 @@
             <span class="text-md">{walletTotals.unstakedNfts}</span>
         </div>
         <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">
-            <span class="text-xs font-semibold">DEBT Staked</span>
+            <span class="text-xs font-semibold">Staked DEBT Tokens</span>
             <span class="text-md">{walletTotals.stakedTokens}</span>
         </div>
         <div class="flex flex-col justify-between text-center basis-20 md:basis-30  xl:basis-auto">

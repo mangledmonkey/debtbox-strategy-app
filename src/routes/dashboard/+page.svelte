@@ -2,8 +2,9 @@
 	import type { TokensData, WalletDataContext } from '$lib/types';
 	import {
 		getWalletDataCtx,
+		getWalletProgressCtx,
 	} from '$lib/contexts';
-	import { connected, signerAddress, loading } from 'svelte-wagmi';
+	import { connected, signerAddress, loading, wagmiLoaded } from 'svelte-wagmi';
 	import { Tabs } from 'svelte-ux';
 	import {
 		CompoundsChart,
@@ -23,17 +24,28 @@
 	let value: TokensData|undefined = $state();
     const walletData: WalletDataContext = getWalletDataCtx();
 
+	const walletProgress = getWalletProgressCtx();
+	let walletsLoaded: boolean = $derived.by(() => {
+		let loaded: boolean = false;
+		if ($walletProgress) {
+			loaded = ($walletProgress?.status.stage / $walletProgress?.status.stages) === 1
+		}
+		return loaded;
+	});
+	$inspect('🚀 ~ letwalletsLoaded:boolean=$derived.by ~ walletsLoaded:', walletsLoaded)
+
 	$effect(() => {
 		if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
 	});
+
 
 	$inspect('🚀 ~ $signerAddress:', $signerAddress);
 	$inspect('$walletData:', $walletData);
 	$inspect('value:', value)
 </script>
 
-{#if $loading || $connected && $signerAddress}
-	{#if $walletData && value}
+{#if $connected && $signerAddress}
+	{#if $walletData?.length > 0 && value && walletsLoaded}
 		<article class="mt-2 sm:p-5">
 			<Tabs
 				options={$walletData}

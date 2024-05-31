@@ -32,7 +32,7 @@
 </script>
 
 <article id="compoundStrategyChart">
-    <h2>Compounds Chart</h2>
+    <h2 class="text-2xl">Compounds Chart</h2>
     <div class="h-[300px] p-4 border rounded">
         <Chart
             data={compoundValues}

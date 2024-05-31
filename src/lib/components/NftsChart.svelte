@@ -38,7 +38,7 @@
     })
 </script>
 <article id="compoundStrategyChart">
-    <h2>NFTs Chart</h2>
+    <h2 class="text-2xl">NFTs Chart</h2>
     <Tabs
         options={chartData}
         placement="top"

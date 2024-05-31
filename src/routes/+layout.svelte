@@ -173,7 +173,6 @@
 			&& (
 				$connected
 				&& $signerAddress
-				|| $wallets
 			)
 		) {
 			getTableData();
