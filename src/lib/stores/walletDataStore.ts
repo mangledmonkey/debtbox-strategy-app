@@ -8,13 +8,19 @@ function createWalletDataStore() {
 
     async function loadData(
         wallets: Wallets|undefined,
+        signerAddress: string,
         chainId: number|null|undefined,
         walletProgress: WalletProgressDataContext
     ) {
         let data: Options = [];
 
         if (wallets && chainId) {
-            data = await getWalletData(wallets, chainId, walletProgress);
+            data = await getWalletData(
+                wallets,
+                signerAddress,
+                chainId,
+                walletProgress
+            );
         }
         
         set(data);

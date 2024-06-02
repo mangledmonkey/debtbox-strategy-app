@@ -5,22 +5,24 @@ import {
     getDebtBoxData,
     getWalletTotals,
     formatWalletProgressData,
-    updateWalletProgressData
+    updateWalletProgressData,
+    decryptWallet
 } from '$lib/utils';
 import { getTokensData } from './tokenDataService';
 
 export async function getWalletData(
     wallets: Wallets,
+    signerAddress: string,
     chainId: number|null|undefined,
     walletProgress: WalletProgressDataContext
 ): Promise<Options>  {
     console.log("🚀 ~ getTokenData ~ start");
     const addresses: (Address|string)[] = wallets.map((wallet => {
-        return wallet.address;
+        return decryptWallet(wallet.address, signerAddress);
     }));
 
-    const stagesCount: number = 17;
-    walletProgress.update(() => formatWalletProgressData(wallets, stagesCount));
+    const stagesCount: number = 16;
+    walletProgress.update(() => formatWalletProgressData(addresses, stagesCount));
     console.log('🚀 ~ getWalletData ~ initial walletProgress:', walletProgress);
     
 	const debtBoxData = await getDebtBoxData();
@@ -29,7 +31,7 @@ export async function getWalletData(
 
     if (addresses && chainId) {
         // Get the user's additional wallets
-        for(let i = 0; i < wallets.length; i += 1) {
+        for(let i = 0; i < addresses.length; i += 1) {
             const walletAddress: Address|string = addresses[i];
             updateWalletProgressData(walletAddress, walletProgress);
             
@@ -57,7 +59,7 @@ export async function getWalletData(
         
 
         // Create and insert summary table
-        if (wallets.length > 1) {
+        if (addresses.length > 1) {
             const summaryTable: TokenData[] = [];
             const debtStakingData: DebtStakingData = {
                 baseStakeUnits: 0,
@@ -70,8 +72,8 @@ export async function getWalletData(
             };
 
             // Loop each table data object in the wallet data
-            for (let i = 0; i < walletData.length; i += 1) {
-                updateWalletProgressData(wallets[i].address, walletProgress);
+            for (let i = 0; i < addresses.length; i += 1) {
+                updateWalletProgressData(addresses[i], walletProgress);
 
                 const wallet: Option = walletData[i];
                 const tokens = wallet.value.tokens;

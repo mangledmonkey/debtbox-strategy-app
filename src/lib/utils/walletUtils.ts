@@ -1,24 +1,40 @@
 import type { Address } from "viem";
-import type { DebtStakingData, Options, TokenData, WalletProgress, WalletProgressData, WalletProgressDataContext, WalletTotals, Wallets } from "$lib/types";
+import type {
+    DebtStakingData,
+    Options,
+    TokenData,
+    User,
+    UserContext,
+    WalletProgress,
+    WalletProgressData,
+    WalletProgressDataContext,
+    WalletTotals,
+    Wallets,
+} from "$lib/types";
+import { db } from "$lib/db";
+import { decryptWallet, encryptWallet } from "./encryption";
+import { signerAddress } from "svelte-wagmi";
 
-export async function getUserWallets(signerAddress: Address|string|null): Promise<Address[]> {
+export async function getUserWallets(
+    signerAddress: Address | string | null
+): Promise<Address[]> {
     console.log("🚀 ~ getUserWallets ~ starting request...");
     let wallets: Address[] = [];
 
     if (signerAddress) {
         try {
-            console.log('Requesting wallets for ', signerAddress);
+            console.log("Requesting wallets for ", signerAddress);
             const response = await fetch(`/api/v1/user/wallets`, {
-                method: 'POST',
+                method: "POST",
                 body: JSON.stringify({
                     userAddress: signerAddress,
-                    includeUser: 'true',
+                    includeUser: "true",
                 }),
                 headers: {
-                    'content-type': 'application/json',
+                    "content-type": "application/json",
                 },
             });
-            
+
             wallets = await response.json();
             console.log("🚀 ~ getUserWallets ~ wallets:", wallets);
         } catch (error) {
@@ -29,24 +45,27 @@ export async function getUserWallets(signerAddress: Address|string|null): Promis
     return wallets;
 }
 
-export async function getWalletData(wallets: Address[]|string|null, chainId: number|null|undefined): Promise<Options> {
+export async function getWalletData(
+    wallets: Address[] | string | null,
+    chainId: number | null | undefined
+): Promise<Options> {
     console.log("🚀 ~ getUserWallets ~ starting request...");
     let walletData: Options = [];
 
     if (wallets && chainId) {
         try {
-            console.log('Requesting token data for ', wallets);
+            console.log("Requesting token data for ", wallets);
             const response = await fetch(`/api/v1/user/tokens`, {
-                method: 'POST',
+                method: "POST",
                 body: JSON.stringify({
                     wallets,
                     chainId,
                 }),
                 headers: {
-                    'content-type': 'application/json',
+                    "content-type": "application/json",
                 },
             });
-            
+
             walletData = await response.json();
             console.log("🚀 ~ getWalletData ~ wallets:", wallets);
         } catch (error) {
@@ -57,7 +76,12 @@ export async function getWalletData(wallets: Address[]|string|null, chainId: num
     return walletData;
 }
 
-export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: DebtStakingData, walletAddress?: Address|string, walletProgress?: WalletProgressDataContext ): WalletTotals  {
+export function getWalletTotals(
+    tokens: (void | TokenData)[],
+    debtStakingData: DebtStakingData,
+    walletAddress?: Address | string,
+    walletProgress?: WalletProgressDataContext
+): WalletTotals {
     if (walletAddress && walletProgress)
         updateWalletProgressData(walletAddress, walletProgress);
 
@@ -73,12 +97,12 @@ export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: Deb
         rewardsBalance: 0,
         avgDailyNftReturn: 0,
     };
-  
+
     if (tokens) {
         // Sum values for all tokens
         for (let i = 0; i < tokens.length; i += 1) {
             const token = tokens[i];
-            
+
             if (token) {
                 if (token.name === "DEBT") walletTotals.debtPrice = token.price;
                 walletTotals.totalNfts += token.totalNfts;
@@ -89,32 +113,41 @@ export function getWalletTotals(tokens: (void|TokenData)[], debtStakingData: Deb
                 walletTotals.rewardsBalance += token.rewardsValue;
 
                 if (walletAddress && walletProgress)
-                    updateWalletProgressData(walletAddress, walletProgress, true);
+                    updateWalletProgressData(
+                        walletAddress,
+                        walletProgress,
+                        true
+                    );
             }
         }
 
         // Calculate average returns per nft
         if (walletTotals.dailyReturns > 0 && walletTotals.stakedNfts > 0) {
-            walletTotals.avgDailyNftReturn = walletTotals.dailyReturns / walletTotals.stakedNfts;
+            walletTotals.avgDailyNftReturn =
+                walletTotals.dailyReturns / walletTotals.stakedNfts;
         }
     }
 
     return walletTotals;
 }
 
-export function formatWalletProgressData(wallets: Wallets, stagesCount: number):  WalletProgressData {
+export function formatWalletProgressData(
+    addresses: (Address|string)[],
+    stagesCount: number
+): WalletProgressData {
+    console.log('🚀 ~ stagesCount:', stagesCount);
     const walletProgressData: WalletProgressData = {
-        walletCount: wallets.length,
+        walletCount: addresses.length,
         wallets: [],
         status: {
-            stages: stagesCount * wallets.length,
-            stage: 0, 
-        }
+            stages: stagesCount * addresses.length,
+            stage: 0,
+        },
     };
 
-    for (let i = 0; i < wallets.length; i += 1) {
+    for (let i = 0; i < addresses.length; i += 1) {
         const progressData: WalletProgress = {
-            wallet: wallets[i].address,
+            wallet: addresses[i],
             stage: 0,
         };
 
@@ -125,7 +158,7 @@ export function formatWalletProgressData(wallets: Wallets, stagesCount: number):
 }
 
 export function updateWalletProgressData(
-    address: Address|string,
+    address: Address | string,
     walletProgress: WalletProgressDataContext,
     bumpStages: boolean = false
 ) {
@@ -144,9 +177,21 @@ export function updateWalletProgressData(
 
             if (bumpStages) p.status.stages += 1;
 
-            // console.log('🚀 ~ updateWalletProgressData ~ walletProgressValues:', p);
-    
+            console.log('🚀 ~ updateWalletProgressData ~ walletProgressValues:', p);
+
             return p;
         }
     });
 }
+
+// export async function addWallet(userId: number|undefined, address: Address|string|null, signerAddress: Address|string|null) {
+//     console.log(`Adding ${address} to database`);
+//     const order = Number(db.wallets.count) + 1 || 0;
+
+//     // Add wallet address to database
+//     db.wallets.add({
+//         userId,
+//         address: encryptWallet(address, signerAddress),
+//         order,
+//     });
+// }

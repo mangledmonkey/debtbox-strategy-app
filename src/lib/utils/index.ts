@@ -4,6 +4,7 @@ export * from './components/rewardsCollectionTarget';
 export * from './contractUtils';
 export * from './debtBoxUtils';
 export * from './diamondUtils';
+export * from './encryption';
 export * from './goalUtils';
 export * from './shadcn';
 export * from './strategyUtils';

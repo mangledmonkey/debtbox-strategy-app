@@ -29,7 +29,12 @@ export function getTokenPrice(_tokens: DebtBoxToken[], projectId: string): numbe
     return token?.attributes.priceUsd;
 }
 
-export async function getRewardsData(project: DebtBoxProject, walletAddress: Address|string, chainId: number, walletProgress: WalletProgressDataContext): Promise<DiamondData|undefined> {
+export async function getRewardsData(
+    project: DebtBoxProject,
+    walletAddress: Address|string,
+    chainId: number,
+    walletProgress: WalletProgressDataContext
+): Promise<DiamondData|undefined> {
     const contractData = await getDiamondInformation(
         project.attributes.rewardsDistributorAddress,
         chainId,
@@ -358,8 +363,15 @@ export async function getTokensData(
 
     const tokenData: Promise<TokenData|void>[] = projects.map(async (project, i) => {
         console.log('🚀 ~ tokenData: fetching data for:', project);
-        return getTokenData(project, tokens, walletAddress, chainId, walletProgress, i)
-            .catch(error => undefined);
+        return getTokenData(
+            project,
+            tokens,
+            walletAddress,
+            chainId,
+            walletProgress,
+            i
+        )
+        .catch(error => undefined);
     });
     
     console.log('🚀 ~ consttokenData:Promise<TokenData|undefined>[]=projects.map ~ tokenData:', tokenData);

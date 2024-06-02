@@ -2,9 +2,9 @@ import type { Writable } from "svelte/store";
 
 export type Goal = {
     id?: number,
+    userId: number,
     target: number,
     name: string,
-    order?: number,
 };
 
 export type Goals = Goal[];

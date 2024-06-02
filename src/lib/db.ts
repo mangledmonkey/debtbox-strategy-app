@@ -1,18 +1,21 @@
+import type { Goal, User, Wallet } from '$lib/types';
 import Dexie, { type Table } from 'dexie';
-import type { Goal, Wallet } from '$lib/types';
+import relationships from 'dexie-relationships';
 
-export class DebtBoxStrategyDexie extends Dexie {
+export class DebtRewardsStrategyDexie extends Dexie {
     // Create the tables when declaring stores()
-    goals!: Table<Goal>;
+    users!: Table<User>;
     wallets!: Table<Wallet>;
+    goals!: Table<Goal>;
 
     constructor() {
-        super('debtBoxStrategy');
+        super('DebtRewardsStrategy', {addons: [relationships]});
         this.version(1).stores({
-            goals: '++id, order, &target, &name',
-            wallets: '++id, order, &address, primary',
+            users: '++id, &address',
+            goals: '++id, userId -> users.id, &target, &name',
+            wallets: '++id, userId -> users.id, order, &address',
         });
     }
 }
 
-export const db = new DebtBoxStrategyDexie();
+export const db = new DebtRewardsStrategyDexie();

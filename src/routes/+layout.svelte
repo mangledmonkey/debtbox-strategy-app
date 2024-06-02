@@ -4,6 +4,8 @@
 	import type {
 		Goals,
 		GoalsContext,
+		UserContext,
+		User,
 		WalletDataContext,
 		WalletTotalsContext,
 		Wallets,
@@ -29,9 +31,6 @@
 	import LucideUnplug from '~icons/lucide/unplug?raw';
 	import LucideWallet from '~icons/lucide/wallet?raw';
 	import { Footer, Logo } from '$lib/components';
-	import { 
-		truncateEthAddress,
-	} from '$lib/utils';
     import { 
 		setWalletsCtx,
 		getWalletsCtx,
@@ -42,11 +41,19 @@
 		setGoalsCtx,
 		getGoalsCtx,
 		setTableDataStatusCtx,
+		getTableDataStatusCtx,
+		getUserCtx,
+		setUserCtx,
 		getWalletDataCtx,
 		getWalletProgressCtx,
 		getWalletTotalsCtx,
-		getTableDataStatusCtx,
 	} from '$lib/contexts';
+	import { 
+		// addWallet,
+		encryptWallet,
+		decryptWallet,
+		truncateEthAddress,
+	} from '$lib/utils';
 	import { defaultValues } from '$lib/data/defaultCompoundValues';
 	import consola from 'consola';
 	import { setContext } from 'svelte';
@@ -56,6 +63,25 @@
 
 	let { data, children } = $props();
 	console.log('🚀 ~ data.initialState:', data.initialState)
+
+	let userToken: string|undefined = $state();
+	$inspect('🚀 ~ userToken:', userToken)
+
+	setUserCtx(undefined);
+	const user: UserContext = getUserCtx();
+	let userObservable: Observable<User|undefined> = liveQuery<User|undefined>(
+		() => {
+			if (userToken) {
+				return db.users
+					.get({address: userToken});
+			}
+		}
+	);
+	userObservable.subscribe({
+		next: result => $user = result,
+		error: error => consola.error(error)
+	})
+	$inspect('🚀 ~ user:', $user)
 
 	// Wallets
 	setWalletsCtx([]);
@@ -68,6 +94,7 @@
 		next: result => $wallets = result,
 		error: error => consola.error(error),
 	})
+	$inspect('🚀 ~ wallets:', $wallets)
 
 	// Goals
 	setGoalsCtx([]);
@@ -110,29 +137,58 @@
 		if (
 			!$tableDataStatus.loaded
 			&& !$tableDataStatus.loading
+			&& $signerAddress
+			&& ($wallets && $wallets.length > 0)
+			&& $user
 		) {
+			consola.info('🚀 ~ calling getTableData...');
+			$tableDataStatus.loading = true;
+			$tableDataStatus.loaded = false;
+			
+			console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
 
-			if ($signerAddress || $wallets) {
-				$tableDataStatus.loading = true;
-				$tableDataStatus.loaded = false;
-				console.log('🚀 ~ calling getTableData...');
-				// const userWallets: Address[]|string|null = await getUserWallets(signerAddress);
-				// const primaryWallet = 
-				
-				console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
-				
-				// Set the store
-				await walletDataStore.loadData($wallets, $chainId, walletProgress);
-				console.log('🚀 ~ $walletDataStore:', $walletDataStore)
-				$walletData = $walletDataStore;
-				
-				if ($walletDataStore && $walletDataStore.length > 0) {
-					$walletTotals = $walletDataStore[0].value.totals;
-					$tableDataStatus.loaded = true;
-				}
-				
+			// Set the store
+			await walletDataStore.loadData(
+				$wallets,
+				$signerAddress,
+				$chainId,
+				walletProgress);
+			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
+			$walletData = $walletDataStore;
+			
+			if ($walletDataStore && $walletDataStore.length > 0) {
+				$walletTotals = $walletDataStore[0].value.totals;
+				$tableDataStatus.loaded = true;
 				$tableDataStatus.loading = false;
 			}
+			
+		}
+	}
+
+	async function addUser(userToken: string) {
+		consola.info('Adding user:', userToken);
+
+		try {
+			const user = await db.users.get({address: userToken});
+			if (user && $signerAddress) console.log('🚀 ~ addUser ~ user:', user, 'address:', decryptWallet(user.address, $signerAddress))
+			if (!user) {
+				await db.users.add({
+					address: userToken,
+				})
+				.catch(error => {
+					consola.error(`User already exists in database: ${error}`)
+				});
+				await db.wallets.add({
+					userId: 1,
+					address: userToken,
+					order: 0
+				})
+				.catch(error => {
+					consola.error(`Wallet already exists in database: ${error}`)
+				});
+			}
+		} catch (error) {
+			consola.error(`Failed to add user data: ${error}`);
 		}
 	}
 
@@ -166,6 +222,22 @@
 	})
 
 	$effect(() => {
+		if ($signerAddress && !userToken) {
+			userToken = encryptWallet($signerAddress, $signerAddress);
+		}
+	})
+	
+	$effect(() => {
+		if (
+			$signerAddress 
+			&& userToken
+			&& !$user
+		) {
+			addUser(userToken);
+		}
+	})
+
+	$effect(() => {
 		if (
 			!$tableDataStatus.loaded
 			&& !$tableDataStatus.loading
@@ -173,6 +245,7 @@
 			&& (
 				$connected
 				&& $signerAddress
+				&& $user
 			)
 		) {
 			getTableData();

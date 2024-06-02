@@ -21,6 +21,7 @@ export * from './svelteUx';
 export * from './tableDataStatus';
 export * from './tokensData';
 export * from './tokensChartData';
+export * from './users';
 export * from './wallets';
 export * from './walletProgress';
 export * from './walletTotals';
