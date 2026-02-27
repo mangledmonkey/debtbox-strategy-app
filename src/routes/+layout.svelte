@@ -58,8 +58,6 @@
 	import consola from 'consola';
 	import { setContext } from 'svelte';
 	import { page } from '$app/stores';
-	import { walletDataStore } from '$lib/stores';
-
 
 	let { data, children } = $props();
 	console.log('🚀 ~ data.initialState:', data.initialState)
@@ -87,9 +85,12 @@
 	setWalletsCtx([]);
 	const wallets: WalletsContext = getWalletsCtx();
 	
-	let walletsObservable: Observable<Wallets> = liveQuery<Wallets>(
-		() => db.wallets.toArray()
-	)
+	let walletsObservable: Observable<Wallets|undefined> = liveQuery<Wallets|undefined>(() => {
+		if ($user?.id) {
+			return db.wallets.where('userId').equals($user.id).toArray()
+		}
+	});
+
 	walletsObservable.subscribe({
 		next: result => $wallets = result,
 		error: error => consola.error(error),
@@ -100,8 +101,11 @@
 	setGoalsCtx([]);
 	const goals: GoalsContext = getGoalsCtx();
 
-	let goalsObservable: Observable<Goals> = liveQuery<Goals>(
-		() => db.goals.toArray()
+	let goalsObservable: Observable<Goals|undefined> = liveQuery<Goals|undefined>(() => {
+		if ($user?.id) {
+			return db.goals.where('userId').equals($user.id).toArray()
+		}
+	} 
 	)
 	goalsObservable.subscribe({
 		next: result => $goals = result,
@@ -119,51 +123,45 @@
 
 	// // Wallet Data
     setWalletDataCtx(undefined);
-    const walletData: WalletDataContext = getWalletDataCtx();
+    // const walletData: WalletDataContext = getWalletDataCtx();
 
 	setWalletTotalsCtx(undefined);
-	const walletTotals: WalletTotalsContext = getWalletTotalsCtx();
+	// const walletTotals: WalletTotalsContext = getWalletTotalsCtx();
 
 	setStrategyValuesCtx(defaultValues);
 
-	// Wallet Loading Progress
-	const walletProgress = getWalletProgressCtx();
-
-	// Wallet Data
-	const tableDataStatus = getTableDataStatusCtx();
-
 	// Get user's wallets if available
-	async function getTableData() {
-		if (
-			!$tableDataStatus.loaded
-			&& !$tableDataStatus.loading
-			&& $signerAddress
-			&& ($wallets && $wallets.length > 0)
-			&& $user
-		) {
-			consola.info('🚀 ~ calling getTableData...');
-			$tableDataStatus.loading = true;
-			$tableDataStatus.loaded = false;
+	// async function getTableData() {
+	// 	if (
+	// 		!$tableDataStatus.loaded
+	// 		&& !$tableDataStatus.loading
+	// 		&& $signerAddress
+	// 		&& $user
+	// 		&& ($wallets && $wallets.length > 0)
+	// 	) {
+	// 		consola.info('🚀 ~ calling getTableData...');
+	// 		$tableDataStatus.loading = true;
+	// 		$tableDataStatus.loaded = false;
 			
-			console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
+	// 		console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
 
-			// Set the store
-			await walletDataStore.loadData(
-				$wallets,
-				$signerAddress,
-				$chainId,
-				walletProgress);
-			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
-			$walletData = $walletDataStore;
+	// 		// Set the store
+	// 		await walletDataStore.loadData(
+	// 			$wallets,
+	// 			$signerAddress,
+	// 			$chainId,
+	// 			walletProgress);
+	// 		console.log('🚀 ~ $walletDataStore:', $walletDataStore)
+	// 		$walletData = $walletDataStore;
 			
-			if ($walletDataStore && $walletDataStore.length > 0) {
-				$walletTotals = $walletDataStore[0].value.totals;
-				$tableDataStatus.loaded = true;
-				$tableDataStatus.loading = false;
-			}
+	// 		if ($walletDataStore && $walletDataStore.length > 0) {
+	// 			$walletTotals = $walletDataStore[0].value.totals;
+	// 			$tableDataStatus.loaded = true;
+	// 			$tableDataStatus.loading = false;
+	// 		}
 			
-		}
-	}
+	// 	}
+	// }
 
 	async function addUser(userToken: string) {
 		consola.info('Adding user:', userToken);
@@ -172,12 +170,17 @@
 			const user = await db.users.get({address: userToken});
 			if (user && $signerAddress) console.log('🚀 ~ addUser ~ user:', user, 'address:', decryptWallet(user.address, $signerAddress))
 			if (!user) {
+				// Add user
+				consola.info('Adding user')
 				await db.users.add({
 					address: userToken,
 				})
 				.catch(error => {
 					consola.error(`User already exists in database: ${error}`)
 				});
+
+				// Add wallet
+				consola.info('Adding primary user wallet')
 				await db.wallets.add({
 					userId: 1,
 					address: userToken,
@@ -237,20 +240,20 @@
 		}
 	})
 
-	$effect(() => {
-		if (
-			!$tableDataStatus.loaded
-			&& !$tableDataStatus.loading
-			&& (!$walletData || $walletData.length === 0)
-			&& (
-				$connected
-				&& $signerAddress
-				&& $user
-			)
-		) {
-			getTableData();
-		}
-	})
+	// $effect(() => {
+	// 	if (
+	// 		!$tableDataStatus.loaded
+	// 		&& !$tableDataStatus.loading
+	// 		&& (!$walletData || $walletData.length === 0)
+	// 		&& (
+	// 			$connected
+	// 			&& $signerAddress
+	// 			&& $user
+	// 		)
+	// 	) {
+		// 		getTableData();
+		// 	}
+		// })
 
 	$inspect('Connected:', $connected);
 	$inspect('Chain ID:', $chainId);

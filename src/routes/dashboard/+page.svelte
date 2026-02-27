@@ -1,10 +1,14 @@
 <script lang="ts">
-	import type { TokensData, WalletDataContext } from '$lib/types';
+	import type { TokensData, UserContext, WalletDataContext, WalletTotalsContext, WalletsContext } from '$lib/types';
 	import {
+	getTableDataStatusCtx,
+		getUserCtx,
 		getWalletDataCtx,
 		getWalletProgressCtx,
+		getWalletTotalsCtx,
+		getWalletsCtx,
 	} from '$lib/contexts';
-	import { connected, signerAddress, loading, wagmiLoaded } from 'svelte-wagmi';
+	import { connected, chainId, signerAddress, loading } from 'svelte-wagmi';
 	import { Tabs } from 'svelte-ux';
 	import {
 		CompoundsChart,
@@ -17,28 +21,87 @@
 		WalletProgress
 	} from '$lib/components';
 	import { goto } from '$app/navigation';
+	import { walletDataStore } from '$lib/stores';
+	import consola from 'consola';
 
 	let { connectToEthereum } = $props();
 
 	// export let data;
-	let value: TokensData|undefined = $state();
+
+	const user: UserContext = getUserCtx();
+	const wallets: WalletsContext = getWalletsCtx();
     const walletData: WalletDataContext = getWalletDataCtx();
 
+	const walletTotals: WalletTotalsContext = getWalletTotalsCtx();
+
+	// Wallet Loading Progress
 	const walletProgress = getWalletProgressCtx();
+
+	// Wallet Data
+	const tableDataStatus = getTableDataStatusCtx();
+
 	let walletsLoaded: boolean = $derived.by(() => {
 		let loaded: boolean = false;
 		if ($walletProgress) {
-			loaded = ($walletProgress?.status.stage / $walletProgress?.status.stages) === 1
+			loaded = ($walletProgress?.status.stage / $walletProgress?.status.stages) >= 1
 		}
 		return loaded;
 	});
 	$inspect('🚀 ~ letwalletsLoaded:boolean=$derived.by ~ walletsLoaded:', walletsLoaded)
 
+	async function getTableData() {
+		if (
+			!$tableDataStatus.loaded
+			&& !$tableDataStatus.loading
+			&& $signerAddress
+			&& $user
+			&& ($wallets && $wallets.length > 0)
+		) {
+			consola.info('🚀 ~ calling getTableData...');
+			$tableDataStatus.loading = true;
+			$tableDataStatus.loaded = false;
+			
+			console.log('🚀 ~ getTableData ~ $wallets:', $wallets);
+
+			// Set the store
+			await walletDataStore.loadData(
+				$wallets,
+				$signerAddress,
+				$chainId,
+				walletProgress);
+			console.log('🚀 ~ $walletDataStore:', $walletDataStore)
+			$walletData = $walletDataStore;
+			
+			if ($walletDataStore && $walletDataStore.length > 0) {
+				$walletTotals = $walletDataStore[0].value.totals;
+				$tableDataStatus.loaded = true;
+				$tableDataStatus.loading = false;
+			}
+			
+		}
+	}
+
+	$effect(() => {
+		if (
+			!$tableDataStatus.loaded
+			&& !$tableDataStatus.loading
+			&& (!$walletData || $walletData.length === 0)
+			&& (
+				$connected
+				&& $signerAddress
+				&& $user
+			)
+		) {
+			getTableData();
+		}
+	})
+	
+	let value: TokensData|undefined = $state();
 	$effect(() => {
 		if ($walletData && $walletData.length > 0 && !value) value = $walletData[0].value;
 	});
-
-
+	console.log('🚀 ~ $tableDataStatus.loading:', $tableDataStatus.loading);
+	console.log('🚀 ~ $tableDataStatus.loaded:', $tableDataStatus.loaded);
 	$inspect('🚀 ~ $signerAddress:', $signerAddress);
 	$inspect('$walletData:', $walletData);
 	$inspect('value:', value)
